@@ -3,6 +3,7 @@ package handlers
 import (
 	"canvas-backend/internal/db"
 	"canvas-backend/types"
+	"canvas-backend/util"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -11,6 +12,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -437,37 +440,49 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *APIState) getImageDescription(ctx context.Context, image_url string) (string, error) {
-	resp, err := http.Get(image_url)
-	if err != nil {
-		return "", fmt.Errorf("ERROR: Failed to download the image, error: %v", err)
+	const MAX_RETRIES = 3
+	var final_error error
+
+	for i := 0; i < MAX_RETRIES; i++ {
+		resp, err := http.Get(image_url)
+		if err != nil {
+			return "", fmt.Errorf("ERROR: Failed to download the image, error: %v", err)
+		}
+		defer resp.Body.Close()
+
+		image_bytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", fmt.Errorf("ERROR: Failed to read the image, error: %v", err)
+		}
+
+		mime_type := http.DetectContentType(image_bytes)
+		prompt := util.IMAGE_DESCRIPTION_PROMPT
+
+		parts := []*genai.Part{
+			{Text: prompt},
+			{InlineData: &genai.Blob{Data: image_bytes, MIMEType: mime_type}},
+		}
+
+		result, err := h.GeminiClient.Models.GenerateContent(ctx, "gemini-2.5-flash", []*genai.Content{{Parts: parts}}, nil)
+
+		if err == nil {
+			if len(result.Candidates) == 0 || len(result.Candidates[0].Content.Parts) == 0 {
+				return "", fmt.Errorf("ERROR: No content generated")
+			}
+			text := result.Candidates[0].Content.Parts[0].Text
+			return text, nil
+		}
+
+		final_error = err
+		log.Printf("WARN: Gemini call attempt %d/%d failed: %v", i+1, MAX_RETRIES, err)
+
+		if strings.Contains(err.Error(), "UNAVAILABLE") {
+			time.Sleep(500 * time.Millisecond)
+			continue
+		} else {
+			return "", final_error
+		}
 	}
-	defer resp.Body.Close()
 
-	image_bytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("ERROR: Failed to read the image, error: %v", err)
-	}
-
-	mime_type := http.DetectContentType(image_bytes)
-	prompt := "Describe this image for a graphic designer. " +
-		"Focus on its shape (e.g., 'tall vertical', 'horizontal'), " +
-		"subject (e.g., 'bottle', 'shoe'), and main colors. " +
-		"Be brief. Example: 'A tall, vertical, green glass bottle.'"
-
-	parts := []*genai.Part{
-		{Text: prompt},
-		{InlineData: &genai.Blob{Data: image_bytes, MIMEType: mime_type}},
-	}
-
-	result, err := h.GeminiClient.Models.GenerateContent(ctx, "gemini-2.5-pro", []*genai.Content{{Parts: parts}}, nil)
-	if err != nil {
-		return "", fmt.Errorf("ERROR: Unable to call the gemini API, error: %v", err)
-	}
-
-	if len(result.Candidates) == 0 || len(result.Candidates[0].Content.Parts) == 0 {
-		return "", fmt.Errorf("ERROR: No content generated")
-	}
-
-	text := result.Candidates[0].Content.Parts[0].Text
-	return text, nil
+	return "", fmt.Errorf("ERROR: All retries failed. Last error: %v", final_error)
 }
