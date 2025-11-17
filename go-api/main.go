@@ -19,7 +19,7 @@ import (
 
 func credentials() (*cloudinary.Cloudinary, context.Context) {
 	cld, _ := cloudinary.New()
-	cld.Config.URL.Secure = true
+	// cld.Config.URL.Secure = true
 	ctx := context.Background()
 
 	return cld, ctx
@@ -42,11 +42,15 @@ func main() {
 	}
 
 	dbpool, err := pgxpool.New(context.Background(), DATABASE_URL)
-	cld, _ := credentials()
 	if err != nil {
 		log.Fatalf("ERROR: Unable to connect to the database, error: %v\n", err)
 	}
 	defer dbpool.Close()
+
+	cld, _ := credentials()
+	if cld == nil {
+		log.Fatalln("ERROR: Unable to get the cloudinary client")
+	}
 
 	if err := dbpool.Ping(context.Background()); err != nil {
 		log.Fatalf("ERROR: Unable to ping the database, error: %v\n", err)

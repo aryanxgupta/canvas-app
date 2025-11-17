@@ -22,10 +22,12 @@ func NewRouter(pool *pgxpool.Pool, queries *db.Queries, cld *cloudinary.Cloudina
 
 	r.Get("/ping", h.PingHandler)
 	r.Get("/brand-kit/{kit_id}", h.HandleGetBrandKit)
+	r.Get("/brand-kits", h.HandleListBrandKits)
 	r.Post("/upload-logo", h.HandleUploadLogo)
 	r.Post("/upload-product", h.HandleUploadProductImage)
-	r.Post("create-brand-kit", h.HandleCreateBrandKit)
-	r.Post("export-image", h.HandleExport)
+	r.Post("/create-brand-kit", h.HandleCreateBrandKit)
+	r.Post("/brand-kit/{kit_id}/generate", h.HandleGenerateLayout)
+	r.Post("/export-image", h.HandleExport)
 
 	return r
 }
