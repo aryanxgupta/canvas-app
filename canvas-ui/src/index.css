@@ -167,3 +167,22 @@
   will-change: transform, opacity;
   pointer-events: none; /* Add this so images don't block clicks on text */
 }
+
+.workspace {
+  width: 100%;
+  height: calc(100vh - 100px);
+  background-color: #060010;
+  position: relative;
+  overflow: hidden;
+}
+
+.canvas-wrapper {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  background-color: #ffffff !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19);
+
+  transform-origin: center center;
+  transition: transform 0.1s ease-out;
+}
