@@ -1,0 +1,20 @@
+services: 
+  db: 
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=mydb
+    ports: 
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql
+    networks:
+      - mynetwork 
+
+volumes: 
+  db_data: 
+
+networks: 
+  mynetwork: 

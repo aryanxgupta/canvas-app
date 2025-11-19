@@ -1,0 +1,65 @@
+# End of https://www.toptal.com/developers/gitignore/api/react,go
+# 
+# Toptal template additions:
+.DS_*
+*.log
+logs
+**/*.backup.*
+**/*.back.*
+*.sublime*
+psd
+thumb
+sketch
+
+# --- Go Backend ---
+# Your secret file
+/go-api/.env
+
+# Your compiled binary
+/go-api/canvas-backend
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Coverage output
+*.out
+
+# --- React Frontend ---
+# Dependencies
+/react-frontend/node_modules
+
+# Production build folder
+/react-frontend/build
+
+# Other common React folders (if you use Vite or Next.js)
+/react-frontend/dist
+/react-frontend/.next
+
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+/dist-ssr
+
+# Log files
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+# Never commit local environment variables!
+.env
+.env.local
+.env.*.local
+
+# IDE & OS files
+.vscode/
+.DS_Store
