@@ -1,3 +1,4 @@
+import { Link } from "wouter"
 import Magnet from "./Magnet"
 
 const Navbar = () => {
@@ -7,19 +8,19 @@ const Navbar = () => {
         <div className="flex items-center justify-center gap-10">
             <div className="mx-3 cursor-pointer">
                 <Magnet padding={30} disabled={false} magnetStrength={5}>
-                <p>HOME</p>
+                    <Link href="/">HOME</Link>
                 </Magnet>
             </div>
 
             <div className="mx-3 cursor-pointer">
                 <Magnet padding={7} disabled={false} magnetStrength={2}>
-                <p>Create</p>
+                    <Link href="/create">CREATE</Link>
                 </Magnet>
             </div>
 
             <div className="mx-3 cursor-pointer">
                 <Magnet padding={30} disabled={false} magnetStrength={5}>
-                <p>ABOUT</p>
+                    <Link href="/">ABOUT</Link>
                 </Magnet>
             </div>
         </div>
