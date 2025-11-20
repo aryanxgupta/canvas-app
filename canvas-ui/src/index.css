@@ -168,24 +168,39 @@
   pointer-events: none; /* Add this so images don't block clicks on text */
 }
 
-/* .workspace {
-  width: 100%;
-  height: calc(100vh - 100px);
-  background-color: #060010;
-  position: relative;
-  overflow: hidden;
+@layer utilities {
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+
+  /* Chrome, Edge, and Safari */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px; /* Very slim width */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* Makes the track invisible so it matches your dark bg */
+    margin-block: 4px; /* A little padding at top/bottom */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1); /* Very subtle grey */
+    border-radius: 100vh; /* Pill shape */
+    transition: background-color 0.3s;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Slightly brighter on hover */
+    cursor: pointer;
+  }
 }
 
-.canvas-wrapper {
-  position: relative;
-  top: 50%;
-  left: 50%;
-  background-color: #ffffff !important;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19);
-
-  transform-origin: center center;
-  transition: transform 0.1s ease-out;
-} */
+body {
+  background-color: "#000";
+  overflow-x: hidden;
+}
 
 .workspace {
   width: 100%;
