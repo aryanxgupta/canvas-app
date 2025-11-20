@@ -1,3 +1,4 @@
+import { ArrowRight, ArrowRightIcon } from "lucide-react";
 import { useBrandKitStore } from "../../../store/useBrandKitStore";
 
 interface StepThreeProps {
@@ -125,7 +126,7 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
         </div>
 
         {/* GROUP 3 — CHANNELS */}
-        <div className="flex flex-col gap-3">
+        {/* <div className="flex flex-col gap-3">
           <label className="text-sm text-gray-300">Channels (Optional)</label>
           <div className="grid grid-cols-2 gap-3">
             {channelOptions.map((channel) => {
@@ -148,7 +149,7 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
               );
             })}
           </div>
-        </div>
+        </div> */}
 
       </div>
 
@@ -161,7 +162,7 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
             bg-white/10 border border-white/10
             text-white font-semibold
             hover:bg-white/20 active:scale-95
-            transition
+            transition cursor-pointer
           "
         >
           ← Back
@@ -173,10 +174,10 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
             px-6 py-3 rounded-xl
             bg-violet-300 text-black font-bold
             hover:bg-violet-400 active:scale-95
-            transition
+            transition flex items-center justify-start gap-2 cursor-pointer
           "
         >
-          Generate Ads →
+          Next <ArrowRightIcon size={15} />
         </button>
       </div>
 

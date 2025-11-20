@@ -152,7 +152,7 @@ export default function StepOne({ onNext }: StepOneProps) {
             </div>
           </div>
 
-          <button
+          {/* <button
             onClick={handleColorSave}
             className="
               self-start px-4 py-2 mt-2 rounded-lg bg-white/10 text-white
@@ -160,7 +160,7 @@ export default function StepOne({ onNext }: StepOneProps) {
             "
           >
             Save Colors
-          </button>
+          </button> */}
         </div>
 
         {/* LOGO UPLOAD */}
@@ -204,7 +204,7 @@ export default function StepOne({ onNext }: StepOneProps) {
           mt-auto mb-2 px-6 py-3 rounded-xl
           bg-violet-300 text-black font-bold
           hover:bg-violet-400 active:scale-95
-          transition shrink-0
+          transition shrink-0 cursor-pointer
         "
       >
         Continue →

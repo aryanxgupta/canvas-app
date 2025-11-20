@@ -11,8 +11,7 @@ function App() {
       </div>
       <Navbar />
       <HeroSection />
-
-      {/* NEW SECTION - does not affect existing layout */}
+      
       <MultiStepFormSection />
     </div>
   )

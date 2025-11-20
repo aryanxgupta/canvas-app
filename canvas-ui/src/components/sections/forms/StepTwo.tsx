@@ -117,7 +117,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
         </div>
 
         {/* BACKGROUND IMAGES */}
-        <div className="flex flex-col gap-4">
+        {/* <div className="flex flex-col gap-4">
           <label className="block text-lg text-gray-200 font-sub-heading">
             Background Images (Optional)
           </label>
@@ -154,7 +154,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* FOOTER: Buttons fixed at bottom relative to container */}
@@ -166,7 +166,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
             bg-white/10 border border-white/10
             text-white font-semibold
             hover:bg-white/20 active:scale-95
-            transition
+            transition cursor-pointer
           "
         >
           ← Back
@@ -178,7 +178,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
             px-6 py-3 rounded-xl
             bg-violet-300 text-black font-bold
             hover:bg-violet-400 active:scale-95
-            transition
+            transition cursor-pointer
           "
         >
           Continue →

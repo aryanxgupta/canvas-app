@@ -3,23 +3,26 @@ import StepOne from "./forms/StepOne"
 import StepTwo from "./forms/StepTwo"
 import StepThree from "./forms/StepThree"
 import StepFour from "./forms/StepFour"
+import Orb from "../Orb"
 
 export default function MultiStepFormSection() {
   const [step, setStep] = useState(1)
 
   return (
     <div className="
-  w-full relative px-[10vw] py-32 
-  bg-gradient-to-b from-black via-[#0e0e0e] to-black
-  overflow-visible
+  w-screen relative px-[10vw] py-32 
+  overflow-hidden
 ">
-
-
+      <div className="w-full h-full absolute inset-0">
+        <Orb
+          hoverIntensity={0.5}
+          rotateOnHover={true}
+          hue={0}
+          forceHoverState={false}
+        />
+      </div>
       {/* Glow that matches hero */}
-      <div className="absolute inset-0 bg-gradient-to-b 
-        from-transparent 
-        via-[#6d28d91a] 
-        to-black 
+      <div className="absolute inset-0 
         pointer-events-none">
       </div>
 

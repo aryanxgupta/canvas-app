@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { useBrandKitStore } from "../../../store/useBrandKitStore";
 import { useState } from "react";
 
@@ -164,9 +164,9 @@ export default function StepFour({ onBack }: StepFourProps) {
             
             <div className="border-t border-white/10 my-2 sm:col-span-2"></div>
 
-            <p className="sm:col-span-2">
+            {/* <p className="sm:col-span-2">
               <span className="font-semibold text-white">Channels:</span> {channels.join(", ") || "—"}
-            </p>
+            </p> */}
             <p className="sm:col-span-2 flex items-center gap-2">
               <span className="font-semibold text-white">Colors:</span>
               <span className="w-3 h-3 rounded-full inline-block" style={{backgroundColor: colorsJson.primary}}></span> {colorsJson.primary} 
@@ -174,7 +174,7 @@ export default function StepFour({ onBack }: StepFourProps) {
               <span className="w-3 h-3 rounded-full inline-block" style={{backgroundColor: colorsJson.secondary}}></span> {colorsJson.secondary}
             </p>
             <p className="sm:col-span-2">
-              <span className="font-semibold text-white">Assets:</span> {productImages.length} Product(s), {backgroundImages.length} Background(s)
+              <span className="font-semibold text-white">Assets:</span> {productImages.length} Product(s), {logoFile ? 1 : 0 } Logo(s)
             </p>
           </div>
         </div>
@@ -187,7 +187,7 @@ export default function StepFour({ onBack }: StepFourProps) {
           disabled={loading}
           className="
             px-6 py-3 rounded-xl bg-white/10 border border-white/10 
-            hover:bg-white/20 text-white transition disabled:opacity-40 disabled:cursor-not-allowed
+            hover:bg-white/20 text-white transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer
           "
         >
           ← Back
@@ -199,12 +199,12 @@ export default function StepFour({ onBack }: StepFourProps) {
           className="
             px-8 py-3 rounded-xl bg-violet-300 text-black font-bold
             hover:bg-violet-400 active:scale-95 transition 
-            disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2
+            disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer
           "
         >
           {loading ? (
             <>
-              <span className="animate-spin">⏳</span> Generating...
+              <span className="animate-spin"><Loader2 /></span> Generating...
             </>
           ) : (
             <div className="flex items-center justify-start gap-4 font-sub-heading">

@@ -13,7 +13,7 @@ const Navbar = () => {
 
             <div className="mx-3 cursor-pointer">
                 <Magnet padding={7} disabled={false} magnetStrength={2}>
-                <p>DASHBOARD</p>
+                <p>Create</p>
                 </Magnet>
             </div>
 
