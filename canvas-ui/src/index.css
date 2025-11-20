@@ -168,7 +168,7 @@
   pointer-events: none; /* Add this so images don't block clicks on text */
 }
 
-.workspace {
+/* .workspace {
   width: 100%;
   height: calc(100vh - 100px);
   background-color: #060010;
@@ -185,4 +185,23 @@
 
   transform-origin: center center;
   transition: transform 0.1s ease-out;
+} */
+
+.workspace {
+  width: 100%;
+  height: 100%; /* Takes full available height */
+  background-color: #060010;
+  position: relative;
+  overflow: hidden; /* Critical: Kills the ghost scrollbars */
+
+  /* FLEXBOX CENTERING (The stable way) */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.canvas-wrapper {
+  /* No position absolute, no transforms. Just a shadow. */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  background-color: white;
 }

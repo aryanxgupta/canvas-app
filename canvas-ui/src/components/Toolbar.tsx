@@ -113,9 +113,26 @@ export const Toolbar = () => {
 
   const downloadCanvas = () => {
     if (!canvas) return;
+    
     canvas.discardActiveObject();
     canvas.requestRenderAll();
-    const dataURL = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 3 });
+
+    // 1. Get the current screen zoom (e.g., 0.4 on a laptop)
+    const currentZoom = canvas.getZoom();
+    
+    // 2. Calculate the multiplier to restore original size (1 / 0.4 = 2.5)
+    const baseMultiplier = 1 / currentZoom;
+
+    // 3. Add High-Res Multiplier (3x for crisp Retina quality)
+    const finalMultiplier = baseMultiplier * 3;
+
+    const dataURL = canvas.toDataURL({
+      format: 'png',
+      quality: 1,
+      multiplier: finalMultiplier,
+      enableRetinaScaling: true
+    });
+
     const link = document.createElement('a');
     link.download = 'ai-ad-design.png';
     link.href = dataURL;
@@ -314,7 +331,7 @@ export const Toolbar = () => {
         <RectangleHorizontal size={32} />
       </button>
 
-      <button onClick={addText} className='p-3 flex items-center justify-center bg-pink-700 text-white rounded-2xl hover:scale-105 cursor-pointer transition-all duration-75'>
+      <button onClick={addTriangle} className='p-3 flex items-center justify-center bg-pink-700 text-white rounded-2xl hover:scale-105 cursor-pointer transition-all duration-75'>
         <Triangle size={32} />
       </button>
 
