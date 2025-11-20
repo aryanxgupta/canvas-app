@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import { useBrandKitStore } from "../../../store/useBrandKitStore";
 import { useState } from "react";
 
@@ -70,7 +71,7 @@ export default function StepFour({ onBack }: StepFourProps) {
       // 3️⃣ Upload Background Images
       const bgUrls: string[] = [];
       for (const bg of backgroundImages) {
-        const url = await uploadSingle(bg, "background"); 
+        const url = await uploadSingle(bg, "background");
         bgUrls.push(url);
       }
 
@@ -94,7 +95,7 @@ export default function StepFour({ onBack }: StepFourProps) {
       const kitId = brandKitJson.data.brandkits[0].id;
       setKitId(kitId);
 
-      // 5️⃣ Generate Layout (Gemini will use all fields)
+      // 5️⃣ Generate Layout (Backend will use all fields)
       const layoutRes = await fetch(
         `http://localhost:4000/generate_layout/${kitId}`,
         {
@@ -110,7 +111,7 @@ export default function StepFour({ onBack }: StepFourProps) {
             style,
             channels,
             colors: colorsJson,
-            backgroundImages: bgUrls, 
+            backgroundImages: bgUrls,
           }),
         }
       );
@@ -129,42 +130,64 @@ export default function StepFour({ onBack }: StepFourProps) {
   }
 
   return (
-    <div className="text-white space-y-10">
+    // ROOT: Flex column with max height
+    <div className="flex flex-col h-full max-h-[80vh] text-white custom-scrollbar">
+      
+      {/* HEADER */}
+      <h3 className="text-2xl font-bold-heading mb-8 shrink-0">
+        Review & Generate
+      </h3>
 
-      <h3 className="text-2xl font-bold-heading">Review & Generate</h3>
+      {/* BODY: Scrollable content */}
+      <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-6 custom-scrollbar">
+        
+        {/* ERROR ALERT */}
+        {error && (
+          <div className="bg-red-600/30 border border-red-500 text-red-200 p-4 rounded-xl text-sm">
+            {error}
+          </div>
+        )}
 
-      {error && (
-        <div className="bg-red-600/30 border border-red-500 text-red-200 p-4 rounded-xl">
-          {error}
+        {/* SUMMARY CARD */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-3 text-sm text-gray-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+            <p><span className="font-semibold text-white">Brand:</span> {brandName}</p>
+            <p><span className="font-semibold text-white">Category:</span> {brandCategory || "—"}</p>
+            <p className="sm:col-span-2"><span className="font-semibold text-white">Tagline:</span> {brandTagline || "—"}</p>
+            
+            <div className="border-t border-white/10 my-2 sm:col-span-2"></div>
+            
+            <p><span className="font-semibold text-white">Campaign:</span> {campaignName || "—"}</p>
+            <p><span className="font-semibold text-white">Format:</span> {format}</p>
+            <p><span className="font-semibold text-white">Tone:</span> {tone || "—"}</p>
+            <p><span className="font-semibold text-white">Style:</span> {style || "—"}</p>
+            
+            <div className="border-t border-white/10 my-2 sm:col-span-2"></div>
+
+            <p className="sm:col-span-2">
+              <span className="font-semibold text-white">Channels:</span> {channels.join(", ") || "—"}
+            </p>
+            <p className="sm:col-span-2 flex items-center gap-2">
+              <span className="font-semibold text-white">Colors:</span>
+              <span className="w-3 h-3 rounded-full inline-block" style={{backgroundColor: colorsJson.primary}}></span> {colorsJson.primary} 
+              <span className="text-gray-500">/</span>
+              <span className="w-3 h-3 rounded-full inline-block" style={{backgroundColor: colorsJson.secondary}}></span> {colorsJson.secondary}
+            </p>
+            <p className="sm:col-span-2">
+              <span className="font-semibold text-white">Assets:</span> {productImages.length} Product(s), {backgroundImages.length} Background(s)
+            </p>
+          </div>
         </div>
-      )}
-
-      {/* SUMMARY */}
-      <div className="space-y-4 text-gray-300">
-        <p><span className="font-semibold text-white">Brand:</span> {brandName}</p>
-        <p><span className="font-semibold text-white">Category:</span> {brandCategory || "—"}</p>
-        <p><span className="font-semibold text-white">Tagline:</span> {brandTagline || "—"}</p>
-        <p><span className="font-semibold text-white">Campaign:</span> {campaignName || "—"}</p>
-        <p><span className="font-semibold text-white">Tone:</span> {tone || "—"}</p>
-        <p><span className="font-semibold text-white">Style:</span> {style || "—"}</p>
-        <p><span className="font-semibold text-white">Format:</span> {format}</p>
-        <p><span className="font-semibold text-white">Channels:</span> {channels.join(", ") || "—"}</p>
-        <p><span className="font-semibold text-white">Colors:</span> 
-          {colorsJson.primary} , {colorsJson.secondary}
-        </p>
-        <p><span className="font-semibold text-white">Backgrounds:</span> 
-          {backgroundImages.length} selected
-        </p>
       </div>
 
-      {/* BUTTONS */}
-      <div className="flex justify-between pt-4">
+      {/* FOOTER: Fixed Buttons */}
+      <div className="flex justify-between pt-6 mt-auto shrink-0 border-t border-white/10">
         <button
           onClick={onBack}
           disabled={loading}
           className="
             px-6 py-3 rounded-xl bg-white/10 border border-white/10 
-            hover:bg-white/20 text-white transition disabled:opacity-40
+            hover:bg-white/20 text-white transition disabled:opacity-40 disabled:cursor-not-allowed
           "
         >
           ← Back
@@ -174,14 +197,24 @@ export default function StepFour({ onBack }: StepFourProps) {
           onClick={generateCreative}
           disabled={loading}
           className="
-            px-6 py-3 rounded-xl bg-violet-300 text-black font-bold
+            px-8 py-3 rounded-xl bg-violet-300 text-black font-bold
             hover:bg-violet-400 active:scale-95 transition 
-            disabled:opacity-50
+            disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2
           "
         >
-          {loading ? "Generating..." : "Generate Creative 🚀"}
+          {loading ? (
+            <>
+              <span className="animate-spin">⏳</span> Generating...
+            </>
+          ) : (
+            <div className="flex items-center justify-start gap-4 font-sub-heading">
+              Generate Creative
+              <ArrowRight size={20} />
+            </div>
+          )}
         </button>
       </div>
+
     </div>
   );
 }
