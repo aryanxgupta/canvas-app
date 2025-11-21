@@ -14,7 +14,7 @@ export default function MultiStepFormSection() {
       <Navbar />
       <div className="
     w-screen relative px-[10vw] py-32 
-    overflow-hidden bg-[#020000]
+    overflow-hidden bg-[#020000] min-h-screen
   ">
         <div className="w-full h-full absolute inset-0">
           <Orb
