@@ -3,6 +3,356 @@ import * as fabric from 'fabric';
 import { useEditorStore, type AIResponse, type LayoutConfig  } from '../store/editorStore';
 import { CaseSensitive, Circle, Download, RectangleHorizontal, Triangle, Upload } from 'lucide-react';
 
+const fullCampaign: AIResponse = {
+instagram_story: {
+    width: 1080,
+    height: 1920,
+    backgroundColor: "#0f0c29",
+    backgroundGradient: {
+      type: "linear",
+      coords: { x1: 0, y1: 0, x2: 0, y2: 1920 },
+      stops: [
+        { offset: 0, color: "#24243e" },
+        { offset: 0.5, color: "#0f0c29" },
+        { offset: 1, color: "#000000" }
+      ]
+    },
+    elements: [
+      {
+        type: "rect",
+        top: 40,
+        left: 40,
+        width: 1000,
+        height: 1840,
+        fill: "transparent",
+        stroke: "rgba(0, 210, 255, 0.3)",
+        strokeWidth: 2
+      },
+      {
+        type: "circle",
+        top: 400,
+        left: 100,
+        radius: 300,
+        fill: "rgba(0, 210, 255, 0.05)"
+      },
+      {
+        type: "rect",
+        top: 200,
+        left: 540,
+        originX: "center",
+        width: 2,
+        height: 100,
+        fill: "#00d2ff"
+      },
+      {
+        type: "text",
+        content: "PURE",
+        top: 320,
+        left: 540,
+        originX: "center",
+        fontSize: 70,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#ffffff",
+        charSpacing: 200
+      },
+      {
+        type: "text",
+        content: "AUDIO",
+        top: 400,
+        left: 540,
+        originX: "center",
+        fontSize: 70,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#00d2ff",
+        charSpacing: 200
+      },
+      {
+        type: "text",
+        content: "SILENCE",
+        top: 600,
+        left: 540,
+        originX: "center",
+        fontSize: 70,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#ffffff",
+        opacity: 0.05,
+        scaleX: 2,
+        scaleY: 2
+      },
+      {
+        type: "image",
+        url: "https://placehold.co/600x600",
+        top: 960,
+        left: 540,
+        originX: "center",
+        originY: "center",
+        width: 900,
+        angle: -10,
+        shadow: { color: "rgba(0, 210, 255, 0.4)", blur: 80, offsetY: 40 }
+      },
+      {
+        type: "rect",
+        top: 1400,
+        left: 200,
+        width: 50,
+        height: 4,
+        fill: "#00d2ff"
+      },
+      {
+        type: "text",
+        content: "NOISE CANCELLING",
+        top: 1420,
+        left: 200,
+        fontSize: 30,
+        fontFamily: "Oswald",
+        color: "#ffffff"
+      },
+      {
+        type: "rect",
+        top: 1650,
+        left: 540,
+        originX: "center",
+        width: 500,
+        height: 80,
+        fill: "transparent",
+        stroke: "#00d2ff",
+        strokeWidth: 2,
+        rx: 40,
+        ry: 40
+      },
+      {
+        type: "text",
+        content: "PRE-ORDER NOW",
+        top: 1672,
+        left: 540,
+        originX: "center",
+        fontSize: 30,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#ffffff"
+      }
+    ]
+  },
+
+  instagram_post: {
+    width: 1080,
+    height: 1080,
+    backgroundColor: "#0f0c29",
+    backgroundGradient: {
+      type: "radial",
+      coords: { x1: 540, y1: 540, x2: 540, y2: 540, r1: 0, r2: 800 },
+      stops: [
+        { offset: 0, color: "#302b63" },
+        { offset: 1, color: "#0f0c29" }
+      ]
+    },
+    elements: [
+      {
+        type: "circle",
+        top: 540,
+        left: 540,
+        originX: "center",
+        originY: "center",
+        radius: 380,
+        fill: "transparent",
+        stroke: "#00d2ff",
+        strokeWidth: 1,
+        opacity: 0.3
+      },
+      {
+        type: "circle",
+        top: 540,
+        left: 540,
+        originX: "center",
+        originY: "center",
+        radius: 420,
+        fill: "transparent",
+        stroke: "#ffffff",
+        strokeWidth: 1,
+        strokeDashArray: [20, 30],
+        opacity: 0.2
+      },
+      {
+        type: "text",
+        content: "AETHER",
+        top: 100,
+        left: 540,
+        originX: "center",
+        fontSize: 70,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#ffffff",
+        charSpacing: 150
+      },
+      {
+        type: "rect",
+        top: 190,
+        left: 540,
+        originX: "center",
+        width: 60,
+        height: 4,
+        fill: "#00d2ff"
+      },
+      {
+        type: "text",
+        content: "STUDIO",
+        top: 480,
+        left: 540,
+        originX: "center",
+        originY: "center",
+        fontSize: 70,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#ffffff",
+        opacity: 0.1,
+        scaleX: 3,
+        scaleY: 3
+      },
+      {
+        type: "image",
+        url: "https://placehold.co/600x600",
+        top: 540,
+        left: 540,
+        originX: "center",
+        originY: "center",
+        width: 600,
+        angle: 5,
+        shadow: { color: "rgba(0, 0, 0, 0.6)", blur: 50, offsetY: 30 }
+      },
+      {
+        type: "rect",
+        top: 880,
+        left: 540,
+        originX: "center",
+        width: 300,
+        height: 70,
+        fill: "#ffffff",
+        shadow: { color: "rgba(0, 210, 255, 0.4)", blur: 20 }
+      },
+      {
+        type: "text",
+        content: "BUY NOW",
+        top: 895,
+        left: 540,
+        originX: "center",
+        fontSize: 30,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#0f0c29"
+      }
+    ]
+  },
+
+  facebook_ad: {
+    width: 1200,
+    height: 628,
+    backgroundColor: "#0f0c29",
+    backgroundGradient: {
+      type: "linear",
+      coords: { x1: 0, y1: 0, x2: 1200, y2: 0 },
+      stops: [
+        { offset: 0, color: "#0f0c29" },
+        { offset: 1, color: "#24243e" }
+      ]
+    },
+    elements: [
+      {
+        type: "rect",
+        top: 0,
+        left: 700,
+        width: 500,
+        height: 700,
+        fill: "#00d2ff",
+        opacity: 0.05,
+        angle: 20
+      },
+      {
+        type: "rect",
+        top: 30,
+        left: 30,
+        width: 1140,
+        height: 568,
+        fill: "transparent",
+        stroke: "#ffffff",
+        strokeWidth: 2,
+        opacity: 0.2
+      },
+      {
+        type: "text",
+        content: "WIRELESS",
+        top: 160,
+        left: 80,
+        fontSize: 70,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#ffffff"
+      },
+      {
+        type: "text",
+        content: "PERFECTION",
+        top: 240,
+        left: 80,
+        fontSize: 70,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#00d2ff"
+      },
+      {
+        type: "rect",
+        top: 330,
+        left: 80,
+        width: 150,
+        height: 4,
+        fill: "#ffffff"
+      },
+      {
+        type: "text",
+        content: "40HR BATTERY LIFE",
+        top: 360,
+        left: 80,
+        fontSize: 26,
+        fontFamily: "Roboto",
+        color: "#cccccc",
+        charSpacing: 50
+      },
+      {
+        type: "rect",
+        top: 460,
+        left: 80,
+        width: 240,
+        height: 60,
+        fill: "transparent",
+        stroke: "#00d2ff",
+        strokeWidth: 2
+      },
+      {
+        type: "text",
+        content: "SHOP AETHER",
+        top: 474,
+        left: 200,
+        originX: "center",
+        fontSize: 24,
+        fontFamily: "Oswald",
+        fontWeight: "bold",
+        color: "#ffffff"
+      },
+      {
+        type: "image",
+        url: "https://placehold.co/600x600",
+        top: 314,
+        left: 900,
+        originX: "center",
+        originY: "center",
+        width: 500,
+        angle: -15,
+        shadow: { color: "rgba(0, 210, 255, 0.3)", blur: 50 }
+      }
+    ]
+  }
+}
 
 // --- 2. TOOLBAR COMPONENT ---
 export const Toolbar = () => {
@@ -47,6 +397,33 @@ export const Toolbar = () => {
           selectable: item.selectable !== undefined ? item.selectable : true
         });
         canvas.add(rect);
+      }
+
+      if (item.type === 'circle') {
+        const circle = new fabric.Circle({
+          top: item.top,
+          left: item.left,
+          radius: item.radius || 50,
+          fill: item.fill || 'transparent',
+          stroke: item.stroke,
+          strokeWidth: item.strokeWidth || 0,
+          opacity: item.opacity !== undefined ? item.opacity : 1,
+          originX: item.originX || 'left',
+          originY: item.originY || 'top',
+          selectable: item.selectable !== undefined ? item.selectable : true
+        });
+        
+        // Apply shadow/blur effect if needed
+        if (item.blur) {
+          circle.set('shadow', new fabric.Shadow({
+            color: item.fill || 'rgba(0,0,0,0.5)',
+            blur: item.blur,
+            offsetX: 0,
+            offsetY: 0
+          }));
+        }
+        
+        canvas.add(circle);
       }
       
       if (item.type === 'text' && item.content) {
@@ -136,36 +513,6 @@ export const Toolbar = () => {
     setLoading(true);
 
 // MOCK: Simulating AI returning 3 variations for the sneaker ad
-    const fullCampaign: AIResponse = {
-      instagram_story: {
-        width: 1080, height: 1920,
-        backgroundColor: "#509E66",
-        elements: [
-          // ... (Your existing vertical sneaker design)
-           { type: "text", content: "STORY MODE", top: 100, left: 540, originX: "center", fontSize: 100, color: "white" },
-           { type: "image", url: "https://png.pngtree.com/png-clipart/20240901/original/pngtree-sports-shoes-png-image_15910407.png", top: 900, left: 540, originX: "center", originY: "center", width: 900, angle: -15 }
-        ]
-      },
-      instagram_post: {
-        width: 1080, height: 1080,
-        backgroundColor: "#509E66",
-        elements: [
-           // A square layout
-           { type: "text", content: "SQUARE POST", top: 100, left: 540, originX: "center", fontSize: 80, color: "white" },
-           { type: "image", url: "https://png.pngtree.com/png-clipart/20240901/original/pngtree-sports-shoes-png-image_15910407.png", top: 540, left: 540, originX: "center", originY: "center", width: 700, angle: 0 }
-        ]
-      },
-      facebook_ad: {
-        width: 1200, height: 628,
-        backgroundColor: "#509E66",
-        elements: [
-           // A landscape layout
-           { type: "text", content: "LANDSCAPE AD", top: 50, left: 600, originX: "center", fontSize: 60, color: "white" },
-           { type: "image", url: "https://png.pngtree.com/png-clipart/20240901/original/pngtree-sports-shoes-png-image_15910407.png", top: 314, left: 600, originX: "center", originY: "center", width: 500, angle: -10 }
-        ]
-      }
-    };
-
     setAiDesign(fullCampaign)
     setLoading(false);
   };
