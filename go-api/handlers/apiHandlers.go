@@ -361,19 +361,9 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	request_body := types.GenerateLayoutRequest{}
-	err := json.NewDecoder(r.Body).Decode(&request_body)
-
-	if err != nil {
-		log.Printf("ERROR: Unable to parse the request body, error: %v\n", err)
-		response.Message = "ERROR: Unable to parse the request body"
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(response)
-		return
-	}
-
 	var kit_uuid pgtype.UUID
-	err = kit_uuid.Scan(kit_id)
+	err := kit_uuid.Scan(kit_id)
+
 	if err != nil {
 		log.Printf("ERROR: Unable to kit id to uuid, error: %v\n", err)
 		response.Message = "ERROR: Invalid kit id"
@@ -420,21 +410,35 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 		image_descriptions[image.ImageUrl] = description
 	}
 
-	log.Println("SUCCESS: Successfully fetched all data for the layout generation")
-
-	//To be completed..
-	//generate the fabric js layout <--
-
-	//Adding temporary return statement without the layout
-	temp_resp := types.TemporaryResponse{
-		KitInfo:   kit,
-		Prompt:    request_body.Prompt,
-		Format:    request_body.Format,
-		ImageInfo: image_descriptions,
+	json_request := types.JsonRequest{
+		UserPrompt:        kit.RulesText.String,
+		Colors:            kit.ColorsJson,
+		Logo:              kit.LogoUrl.String,
+		ImageDescriptions: image_descriptions,
 	}
 
-	response.Message = "SUCCESS: Successfully generated the data (without the fabric js layout)"
-	response.Data = temp_resp
+	result, err := h.getFabricJSON(r.Context(), json_request)
+	if err != nil {
+		log.Printf("ERROR: Unable to generate the fabric json")
+		response.Message = "ERROR: Something went wrong"
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	var resultObj map[string]interface{}
+
+	if err := json.Unmarshal([]byte(result), &resultObj); err != nil {
+		log.Printf("ERROR: Unable to parse the fabric json string")
+		response.Message = "ERROR: Something went wrong"
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	log.Println("SUCCESS: Successfully fetched all data for the layout generation")
+	response.Message = "SUCCESS: Successfully generated the data "
+	response.Data = result
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
 }
@@ -461,6 +465,52 @@ func (h *APIState) getImageDescription(ctx context.Context, image_url string) (s
 		parts := []*genai.Part{
 			{Text: prompt},
 			{InlineData: &genai.Blob{Data: image_bytes, MIMEType: mime_type}},
+		}
+
+		result, err := h.GeminiClient.Models.GenerateContent(ctx, "gemini-2.5-flash", []*genai.Content{{Parts: parts}}, nil)
+
+		if err == nil {
+			if len(result.Candidates) == 0 || len(result.Candidates[0].Content.Parts) == 0 {
+				return "", fmt.Errorf("ERROR: No content generated")
+			}
+			text := result.Candidates[0].Content.Parts[0].Text
+			return text, nil
+		}
+
+		final_error = err
+		log.Printf("WARN: Gemini call attempt %d/%d failed: %v", i+1, MAX_RETRIES, err)
+
+		if strings.Contains(err.Error(), "UNAVAILABLE") {
+			time.Sleep(500 * time.Millisecond)
+			continue
+		} else {
+			return "", final_error
+		}
+	}
+
+	return "", fmt.Errorf("ERROR: All retries failed. Last error: %v", final_error)
+}
+
+func (h *APIState) getFabricJSON(ctx context.Context, json_request types.JsonRequest) (string, error) {
+	const MAX_RETRIES = 3
+	var final_error error
+
+	var sb strings.Builder
+	encoder := json.NewEncoder(&sb)
+	encoder.SetEscapeHTML(false)
+	encoder.SetIndent("", "  ")
+
+	if err := encoder.Encode(json_request); err != nil {
+		return "", fmt.Errorf("failed to encode request: %v", err)
+	}
+
+	jsonString := sb.String()
+
+	for i := 0; i < MAX_RETRIES; i++ {
+		prompt := util.FABRIC_JSON_PROMPT
+
+		parts := []*genai.Part{
+			{Text: prompt + "\n\nContext Data:\n" + jsonString},
 		}
 
 		result, err := h.GeminiClient.Models.GenerateContent(ctx, "gemini-2.5-flash", []*genai.Content{{Parts: parts}}, nil)

@@ -50,3 +50,10 @@ type TemporaryResponse struct {
 	Format    string            `json:"format"`
 	ImageInfo map[string]string `json:"image_info"`
 }
+
+type JsonRequest struct {
+	UserPrompt        string
+	Colors            any
+	Logo              string
+	ImageDescriptions map[string]string
+}
