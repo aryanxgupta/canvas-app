@@ -14,6 +14,7 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 	"google.golang.org/genai"
 )
 
@@ -69,9 +70,16 @@ func main() {
 	queries := db.New(dbpool)
 	r := api.NewRouter(dbpool, queries, cld, gemini_client)
 
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, // frontend origin
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowCredentials: true,
+	}).Handler(r)
+
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: r,
+		Handler: corsHandler,
 	}
 
 	go func() {

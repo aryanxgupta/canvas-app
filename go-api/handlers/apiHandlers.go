@@ -429,7 +429,7 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 	var resultObj map[string]interface{}
 
 	if err := json.Unmarshal([]byte(result), &resultObj); err != nil {
-		log.Printf("ERROR: Unable to parse the fabric json string")
+		log.Printf("ERROR: Unable to parse the fabric json string, error: %v\n", err)
 		response.Message = "ERROR: Something went wrong"
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(response)

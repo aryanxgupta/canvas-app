@@ -359,7 +359,19 @@ export const Toolbar = () => {
   const { canvas, width, height, aiDesign, setAiDesign } = useEditorStore();
   const [loading, setLoading] = useState(false);
 
+    // --- 4. LOAD CAMPAIGN ACTION (BURGER AD STYLE) ---
+  const loadAIcampaign = async () => {
+    setLoading(true);
+
+    setAiDesign(aiDesign)
+    setLoading(false);
+  };
+
   // --- 3. RENDER ENGINE ---
+  useEffect(()=>{
+    loadAIcampaign(); 
+  }, [])
+
   const renderDesign = async (data: AIResponse) => {
     if (!canvas) return;
     canvas.clear();
@@ -507,15 +519,6 @@ export const Toolbar = () => {
     }
 
   }, [width, height, aiDesign, canvas]); // <--- Dependencies trigger the effect  
-
-  // --- 4. LOAD CAMPAIGN ACTION (BURGER AD STYLE) ---
-  const loadAIcampaign = async () => {
-    setLoading(true);
-
-// MOCK: Simulating AI returning 3 variations for the sneaker ad
-    setAiDesign(fullCampaign)
-    setLoading(false);
-  };
 
   // --- 5. STANDARD TOOLS ---
   const addText = () => {

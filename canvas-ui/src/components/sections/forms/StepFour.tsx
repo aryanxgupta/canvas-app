@@ -1,7 +1,8 @@
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useBrandKitStore } from "../../../store/useBrandKitStore";
 import { useState } from "react";
-
+import { useEditorStore, type AIResponse } from "@/store/editorStore";
+import { useLocation } from "wouter" 
 interface StepFourProps {
   onBack: () => void;
 }
@@ -15,6 +16,8 @@ export default function StepFour({ onBack }: StepFourProps) {
     campaignName,
 
     // Assets
+    logoUrl, 
+    productImageUrls,
     logoFile,
     productImages,
     backgroundImages,
@@ -32,15 +35,16 @@ export default function StepFour({ onBack }: StepFourProps) {
     setProductImageUrls,
     setKitId,
   } = useBrandKitStore();
-
+  const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { aiDesign, setAiDesign } = useEditorStore(); 
 
   async function uploadSingle(file: File, type: string) {
     const fd = new FormData();
-    fd.append(type, file);
+    fd.append(`${type}_file`, file);
 
-    const res = await fetch(`http://localhost:4000/upload/${type}`, {
+    const res = await fetch(`http://localhost:8080/upload-${type}`, {
       method: "POST",
       body: fd,
     });
@@ -48,7 +52,7 @@ export default function StepFour({ onBack }: StepFourProps) {
     const json = await res.json();
     if (!res.ok) throw new Error(json.message);
 
-    return json.data.url;
+    return json.data;
   }
 
   async function generateCreative() {
@@ -57,71 +61,60 @@ export default function StepFour({ onBack }: StepFourProps) {
       setError("");
 
       // 1️⃣ Upload Logo
-      const logoUrl = await uploadSingle(logoFile!, "logo");
-      setLogoUrl(logoUrl);
+      const logo_url = await uploadSingle(logoFile!, "logo");
+      setLogoUrl(logo_url.url);
 
       // 2️⃣ Upload Product Images
       const productUrls: string[] = [];
       for (const file of productImages) {
-        const url = await uploadSingle(file, "product");
-        productUrls.push(url);
+        const prod_url = await uploadSingle(file, "product");
+        productUrls.push(prod_url.url);
       }
+      
       setProductImageUrls(productUrls);
 
-      // 3️⃣ Upload Background Images
-      const bgUrls: string[] = [];
-      for (const bg of backgroundImages) {
-        const url = await uploadSingle(bg, "background");
-        bgUrls.push(url);
+      const rules = {
+        prompt: prompt, 
+        tone: tone, 
+        style: style,
+        tagline: brandTagline, 
       }
 
       // 4️⃣ Create Brand Kit
-      const brandKitRes = await fetch("http://localhost:4000/brandkits", {
+      const brandKitRes = await fetch("http://localhost:8080/create-brand-kit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: brandName,
-          category: brandCategory || null,
-          tagline: brandTagline || null,
           colors_json: colorsJson,
           logo_url: logoUrl,
-          images: [...productUrls, ...bgUrls],
+          image_urls: [...productImageUrls],
+          rules_text: JSON.stringify(rules)
         }),
       });
 
       const brandKitJson = await brandKitRes.json();
       if (!brandKitRes.ok) throw new Error(brandKitJson.message);
-
-      const kitId = brandKitJson.data.brandkits[0].id;
+      const kitId = brandKitJson.data.brand_kit[0].id;
       setKitId(kitId);
 
       // 5️⃣ Generate Layout (Backend will use all fields)
       const layoutRes = await fetch(
-        `http://localhost:4000/generate_layout/${kitId}`,
+        `http://localhost:8080/brand-kit/${kitId}/generate`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prompt,
-            format,
-            campaignName,
-            tagline: brandTagline,
-            category: brandCategory,
-            tone,
-            style,
-            channels,
-            colors: colorsJson,
-            backgroundImages: bgUrls,
-          }),
+          headers: { "Content-Type": "application/json" }
         }
       );
 
       const layoutJson = await layoutRes.json();
       if (!layoutRes.ok) throw new Error(layoutJson.message);
+      console.log(layoutJson);
 
-      console.log("Generated Creative Result:", layoutJson);
-
-      window.location.href = "/dashboard";
+      const AiDesignObj: AIResponse = JSON.parse(layoutJson.data)
+      setAiDesign(AiDesignObj)
+      setLocation("/canvas")
+      
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
