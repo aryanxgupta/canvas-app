@@ -156,7 +156,9 @@ func (h *APIState) HandleUploadLogo(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	resp, err := h.Cld.Upload.Upload(r.Context(), file, uploader.UploadParams{
-		PublicID: header.Filename,
+		PublicID:          header.Filename,
+		BackgroundRemoval: "cloudinary_ai",
+		Format:            "png",
 	})
 
 	if err != nil {
@@ -204,6 +206,7 @@ func (h *APIState) HandleUploadProductImage(w http.ResponseWriter, r *http.Reque
 	resp, err := h.Cld.Upload.Upload(r.Context(), file, uploader.UploadParams{
 		PublicID:          header.Filename,
 		BackgroundRemoval: "cloudinary_ai",
+		Format:            "png",
 	})
 
 	if err != nil {
@@ -410,11 +413,17 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 		image_descriptions[image.ImageUrl] = description
 	}
 
+	var ImageUrlArray []string
+	for _, image := range images {
+		ImageUrlArray = append(ImageUrlArray, image.ImageUrl)
+	}
+
 	json_request := types.JsonRequest{
 		UserPrompt:        kit.RulesText.String,
 		Colors:            kit.ColorsJson,
 		Logo:              kit.LogoUrl.String,
 		ImageDescriptions: image_descriptions,
+		ImageURLs:         ImageUrlArray,
 	}
 
 	result, err := h.getFabricJSON(r.Context(), json_request)
@@ -427,6 +436,9 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var resultObj map[string]interface{}
+	for k, v := range image_descriptions {
+		fmt.Println(k, " ", v)
+	}
 
 	if err := json.Unmarshal([]byte(result), &resultObj); err != nil {
 		log.Printf("ERROR: Unable to parse the fabric json string, error: %v\n", err)
@@ -520,7 +532,19 @@ func (h *APIState) getFabricJSON(ctx context.Context, json_request types.JsonReq
 				return "", fmt.Errorf("ERROR: No content generated")
 			}
 			text := result.Candidates[0].Content.Parts[0].Text
-			return text, nil
+
+			// Clean the response before returning
+			cleanedText := cleanLLMResponse(text)
+
+			// Validate it's actually JSON
+			if !json.Valid([]byte(cleanedText)) {
+				log.Printf("WARN: Invalid JSON on attempt %d/%d, retrying...", i+1, MAX_RETRIES)
+				final_error = fmt.Errorf("invalid JSON received from LLM")
+				time.Sleep(500 * time.Millisecond)
+				continue
+			}
+
+			return cleanedText, nil
 		}
 
 		final_error = err
@@ -535,4 +559,23 @@ func (h *APIState) getFabricJSON(ctx context.Context, json_request types.JsonReq
 	}
 
 	return "", fmt.Errorf("ERROR: All retries failed. Last error: %v", final_error)
+}
+
+// cleanLLMResponse removes markdown code blocks and other formatting
+func cleanLLMResponse(response string) string {
+	// Trim whitespace
+	cleaned := strings.TrimSpace(response)
+
+	// Remove markdown code blocks (```json ... ``` or ``` ... ```)
+	cleaned = strings.TrimPrefix(cleaned, "```json")
+	cleaned = strings.TrimPrefix(cleaned, "```")
+	cleaned = strings.TrimSuffix(cleaned, "```")
+
+	// Trim again after removing backticks
+	cleaned = strings.TrimSpace(cleaned)
+
+	// Remove any leading/trailing newlines or tabs
+	cleaned = strings.Trim(cleaned, "\n\r\t ")
+
+	return cleaned
 }

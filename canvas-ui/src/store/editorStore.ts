@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import * as fabric from 'fabric';
-
-// --- TYPES ---
+import { fabric } from 'fabric';
 
 export interface AIElement {
   type: string;
@@ -21,8 +19,8 @@ export interface AIElement {
   selectable?: boolean;
   rx?: number;
   ry?: number;
-  originX?: fabric.TOriginX;
-  originY?: fabric.TOriginY;
+  originX?: string;
+  originY?: string;
   shadow?: { color?: string; blur?: number; offsetX?: number; offsetY?: number };
   glow?: { color?: string; blur?: number };
   skewX?: number;
@@ -58,8 +56,6 @@ export interface AIResponse {
   facebook_ad: LayoutConfig;
 }
 
-// --- STORE ---
-
 interface EditorState {
   canvas: fabric.Canvas | null;
   setCanvas: (canvas: fabric.Canvas | null) => void;
@@ -67,12 +63,10 @@ interface EditorState {
   selectedObject: fabric.Object | null;
   setSelectedObject: (object: fabric.Object | null) => void;
 
-  // Canvas Dimensions
   width: number;
   height: number;
   setSize: (width: number, height: number) => void;
 
-  // AI Data Storage
   aiDesign: AIResponse | null;
   setAiDesign: (design: AIResponse | null) => void;
 }
@@ -85,7 +79,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   setSelectedObject: (object) => set({ selectedObject: object }),
   
   width: 1080,
-  height: 1920, // Default to Story size
+  height: 1920,
   setSize: (width, height) => set({ width, height }),
 
   aiDesign: null,

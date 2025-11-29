@@ -5,29 +5,25 @@ interface BrandKitState {
   brandName: string;
   logoFile: File | null;
   productImages: File[];
-  backgroundImages: File[];
   colorsJson: Record<string, string>;
   rulesText: string;
   prompt: string;
   format: string;
   logoUrl: string;
   productImageUrls: string[];
-  backgroundImageUrls: string[];
   kitId: string;
 
-  // OPTIONAL FIELDS (used for personalization & AI hints)
+  // OPTIONAL FIELDS
   campaignName: string;
   brandCategory: string;
   brandTagline: string;
   tone: string;
   style: string;
-  channels: string[];
 
   // SETTERS
   setBrandName: (v: string) => void;
   setLogoFile: (f: File | null) => void;
   addProductImages: (files: File[]) => void;
-  addBackgroundImages: (files: File[]) => void;
   setColorsJson: (obj: Record<string, string>) => void;
   setRulesText: (v: string) => void;
   setPrompt: (v: string) => void;
@@ -38,11 +34,9 @@ interface BrandKitState {
   setBrandTagline: (v: string) => void;
   setTone: (v: string) => void;
   setStyle: (v: string) => void;
-  setChannels: (v: string[]) => void;
 
   setLogoUrl: (v: string) => void;
   setProductImageUrls: (v: string[]) => void;
-  setBackgroundImageUrls: (v: string[]) => void;
   setKitId: (v: string) => void;
 }
 
@@ -51,14 +45,12 @@ export const useBrandKitStore = create<BrandKitState>((set) => ({
   brandName: "",
   logoFile: null,
   productImages: [],
-  backgroundImages: [],
-  colorsJson: {},  // object, not string
+  colorsJson: { primary: "#8b5cf6", secondary: "#ffffff" }, // Set defaults here
   rulesText: "",
   prompt: "",
   format: "square",
   logoUrl: "",
   productImageUrls: [],
-  backgroundImageUrls: [],
   kitId: "",
 
   // OPTIONAL
@@ -67,7 +59,6 @@ export const useBrandKitStore = create<BrandKitState>((set) => ({
   brandTagline: "",
   tone: "",
   style: "",
-  channels: [],
 
   // SETTERS
   setBrandName: (v) => set({ brandName: v }),
@@ -76,11 +67,6 @@ export const useBrandKitStore = create<BrandKitState>((set) => ({
   addProductImages: (files) =>
     set((state) => ({
       productImages: [...state.productImages, ...files],
-    })),
-
-  addBackgroundImages: (files) =>
-    set((state) => ({
-      backgroundImages: [...state.backgroundImages, ...files],
     })),
 
   setColorsJson: (obj) => set({ colorsJson: obj }),
@@ -93,10 +79,8 @@ export const useBrandKitStore = create<BrandKitState>((set) => ({
   setBrandTagline: (v) => set({ brandTagline: v }),
   setTone: (v) => set({ tone: v }),
   setStyle: (v) => set({ style: v }),
-  setChannels: (v) => set({ channels: v }),
 
   setLogoUrl: (v) => set({ logoUrl: v }),
   setProductImageUrls: (v) => set({ productImageUrls: v }),
-  setBackgroundImageUrls: (v) => set({ backgroundImageUrls: v }),
   setKitId: (v) => set({ kitId: v }),
 }));

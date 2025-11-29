@@ -56,4 +56,5 @@ type JsonRequest struct {
 	Colors            any
 	Logo              string
 	ImageDescriptions map[string]string
+	ImageURLs         []string
 }

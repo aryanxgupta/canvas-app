@@ -1,35 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useEditorStore } from '../store/editorStore';
-import * as fabric from 'fabric';
-import { ArrowDownToDot, ArrowUpFromDot, ChevronDown, ChevronUp, LockIcon, Trash2Icon } from 'lucide-react';
+import { fabric } from 'fabric';
+import { 
+  ArrowDownToDot, 
+  ArrowUpFromDot, 
+  ChevronDown, 
+  ChevronUp, 
+  LockIcon, 
+  Trash2Icon, 
+  Layers,
+  Palette,
+  Type,
+  Image as ImageIcon,
+  Sun
+} from 'lucide-react';
 
-// --- STYLES ---
-const deleteBtnStyle: React.CSSProperties = {
-  width: '100%', padding: '10px', background: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', marginTop: '20px'
-};
-
-const tabStyle = (isActive: boolean): React.CSSProperties => ({
-  flex: 1, padding: '8px', fontSize: '12px', textAlign: 'center', cursor: 'pointer',
-  background: isActive ? '#6366f1' : 'rgba(255,255,255,0.1)',
-  color: 'white', fontWeight: isActive ? 'bold' : 'normal', borderRadius: '6px', transition: 'all 0.2s'
-});
-
+// --- CONSTANTS ---
 const FONT_FAMILIES = [
-  "Arial",
-  "Roboto",
-  "Montserrat",      // Modern / Startup
-  "Poppins",         // Clean / Geometric
-  "Oswald",          // Bold / Sporty
-  "Bebas Neue",      // Tall / Headlines
-  "Playfair Display",// Luxury / Serif
-  "Lobster",         // Fun / Retro
-  "Pacifico",        // Handwritten / Vibes
-  "Dancing Script",  // Elegant / Wedding
-  "Anton",           // Heavy / Impact
-  "Open Sans",       // Neutral
-  "Times New Roman",
-  "Courier New",
+  "Arial", "Roboto", "Montserrat", "Poppins", "Oswald", 
+  "Bebas Neue", "Playfair Display", "Lobster", "Pacifico", 
+  "Dancing Script", "Anton", "Open Sans", "Times New Roman", "Courier New"
 ];
+
 const BLEND_MODES = ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn"];
 
 export const SettingsPanel = () => {
@@ -66,7 +58,7 @@ export const SettingsPanel = () => {
   // Lock
   const [isLocked, setIsLocked] = useState(false);
 
-  // [RESTORED] Background State
+  // Background State
   const [bgType, setBgType] = useState<'solid' | 'gradient'>('solid');
   const [bgColor1, setBgColor1] = useState('#ffffff');
   const [bgColor2, setBgColor2] = useState('#ffffff');
@@ -75,13 +67,13 @@ export const SettingsPanel = () => {
   useEffect(() => {
     if (!selectedObject) return;
 
-    setType(selectedObject.type);
+    setType(selectedObject.type || '');
     setOpacity(selectedObject.opacity || 1);
     setSkewX(selectedObject.skewX || 0);
     setStrokeWidth(selectedObject.strokeWidth || 0);
     setIsLocked(selectedObject.lockMovementX || false);
     
-    // @ts-ignore
+    // @ts-ignore - globalCompositeOperation is valid in v5 but sometimes missing in types
     setBlendMode(selectedObject.globalCompositeOperation || 'normal');
 
     // 1. Sync Fill
@@ -91,8 +83,11 @@ export const SettingsPanel = () => {
         setColor('#000000');
     } else {
         setIsTransparent(false);
-        const hex = new fabric.Color(fill as string).toHex();
-        setColor(`#${hex}`);
+        // Handle if fill is pattern or gradient (advanced), fallback to black if so
+        if (typeof fill === 'string') {
+             const hex = new fabric.Color(fill).toHex();
+             setColor(`#${hex}`);
+        }
     }
 
     // 2. Sync Stroke
@@ -100,12 +95,14 @@ export const SettingsPanel = () => {
     if (!objStroke || objStroke === 'transparent') {
         setStroke('#ffffff'); 
     } else {
-        const hex = new fabric.Color(objStroke as string).toHex();
-        setStroke(`#${hex}`);
+        if (typeof objStroke === 'string') {
+            const hex = new fabric.Color(objStroke).toHex();
+            setStroke(`#${hex}`);
+        }
     }
 
     // 3. Text
-    if (selectedObject.type === 'i-text' || selectedObject.type === 'text') {
+    if (selectedObject.type === 'i-text' || selectedObject.type === 'text' || selectedObject.type === 'textbox') {
       const textObj = selectedObject as fabric.IText;
       setFontSize(textObj.fontSize || 20);
       setTextContent(textObj.text || '');
@@ -113,9 +110,9 @@ export const SettingsPanel = () => {
       setCharSpacing(textObj.charSpacing || 0);
     }
 
-    // 4. Filters
+    // 4. Filters (Image only)
     if (selectedObject.type === 'image') {
-      const img = selectedObject as fabric.FabricImage;
+      const img = selectedObject as fabric.Image;
       setBlur(0); setBrightness(0); setContrast(0);
       if (img.filters) {
         img.filters.forEach((filter: any) => {
@@ -146,22 +143,20 @@ export const SettingsPanel = () => {
 
   // --- HANDLERS ---
 
-  // [RESTORED] Background Handlers
   const updateBackground = (type: 'solid' | 'gradient', c1: string, c2: string) => {
     if (!canvas) return;
+    
     if (type === 'solid') {
-        // @ts-ignore
-        canvas.backgroundColor = c1;
+        canvas.setBackgroundColor(c1, canvas.renderAll.bind(canvas));
     } else {
         const gradient = new fabric.Gradient({
             type: 'linear',
             coords: { x1: 0, y1: 0, x2: canvas.width || 0, y2: canvas.height || 0 },
             colorStops: [ { offset: 0, color: c1 }, { offset: 1, color: c2 } ]
         });
-        // @ts-ignore
-        canvas.backgroundColor = gradient;
+        // Fabric v5 setBackgroundColor accepts Gradient objects
+        canvas.setBackgroundColor(gradient as any, canvas.renderAll.bind(canvas));
     }
-    canvas.requestRenderAll();
   };
 
   const handleBgTypeChange = (type: 'solid' | 'gradient') => {
@@ -169,70 +164,142 @@ export const SettingsPanel = () => {
       updateBackground(type, bgColor1, bgColor2);
   };
 
-  const handleBgColor1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setBgColor1(e.target.value);
-      updateBackground(bgType, e.target.value, bgColor2);
+  // Object Handlers (Simplified for brevity - logic remains same)
+  const updateProp = (key: string, value: any) => {
+      if(selectedObject && canvas) {
+          selectedObject.set(key as any, value);
+          canvas.requestRenderAll();
+      }
   };
 
-  const handleBgColor2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setBgColor2(e.target.value);
-      updateBackground(bgType, bgColor1, e.target.value);
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => { setColor(e.target.value); setIsTransparent(false); updateProp('fill', e.target.value); };
+  const toggleTransparent = (e: React.ChangeEvent<HTMLInputElement>) => { setIsTransparent(e.target.checked); updateProp('fill', e.target.checked ? 'transparent' : color); };
+  const toggleLock = (e: React.ChangeEvent<HTMLInputElement>) => { 
+      const val = e.target.checked; 
+      setIsLocked(val); 
+      if(selectedObject && canvas) {
+        selectedObject.set({ lockMovementX: val, lockMovementY: val, lockRotation: val, lockScalingX: val, lockScalingY: val });
+        canvas.requestRenderAll();
+      }
   };
 
-  // Object Handlers
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => { setColor(e.target.value); setIsTransparent(false); if (selectedObject && canvas) { selectedObject.set({ fill: e.target.value }); canvas.requestRenderAll(); } };
-  const toggleTransparent = (e: React.ChangeEvent<HTMLInputElement>) => { const checked = e.target.checked; setIsTransparent(checked); if (selectedObject && canvas) { selectedObject.set({ fill: checked ? 'transparent' : color }); canvas.requestRenderAll(); } };
-  const toggleLock = (e: React.ChangeEvent<HTMLInputElement>) => { const checked = e.target.checked; setIsLocked(checked); if (selectedObject && canvas) { selectedObject.set({ lockMovementX: checked, lockMovementY: checked, lockRotation: checked, lockScalingX: checked, lockScalingY: checked }); canvas.requestRenderAll(); } };
-  const handleStrokeChange = (e: React.ChangeEvent<HTMLInputElement>) => { setStroke(e.target.value); if (selectedObject && canvas) { selectedObject.set({ stroke: e.target.value }); canvas.requestRenderAll(); } };
-  const handleStrokeWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => { const val = parseInt(e.target.value); setStrokeWidth(val); if (selectedObject && canvas) { selectedObject.set({ strokeWidth: val }); canvas.requestRenderAll(); } };
-  const handleSkewXChange = (e: React.ChangeEvent<HTMLInputElement>) => { const val = parseInt(e.target.value); setSkewX(val); if (selectedObject && canvas) { selectedObject.set({ skewX: val }); canvas.requestRenderAll(); } };
-  const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => { const val = parseFloat(e.target.value); setOpacity(val); if (selectedObject && canvas) { selectedObject.set({ opacity: val }); canvas.requestRenderAll(); } };
-  const handleBlendModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => { const val = e.target.value; setBlendMode(val); if (selectedObject && canvas) { selectedObject.set({ globalCompositeOperation: val }); canvas.requestRenderAll(); } };
-  const handleFontFamilyChange = (e: React.ChangeEvent<HTMLSelectElement>) => { const val = e.target.value; setFontFamily(val); if (selectedObject && canvas) { (selectedObject as fabric.IText).set({ fontFamily: val }); canvas.requestRenderAll(); } };
-  const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => { const val = parseInt(e.target.value, 10); setFontSize(val); if (selectedObject && canvas) { selectedObject.set({ fontSize: val }); canvas.requestRenderAll(); } };
-  const handleCharSpacingChange = (e: React.ChangeEvent<HTMLInputElement>) => { const val = parseInt(e.target.value, 10); setCharSpacing(val); if (selectedObject && canvas) { (selectedObject as fabric.IText).set({ charSpacing: val }); canvas.requestRenderAll(); } };
-  const handleTextContentChange = (e: React.ChangeEvent<HTMLInputElement>) => { const val = e.target.value; setTextContent(val); if (selectedObject && canvas && (selectedObject.type === 'i-text')) { (selectedObject as fabric.IText).set({ text: val }); canvas.requestRenderAll(); } };
-  const applyFilterValue = (type: 'blur' | 'brightness' | 'contrast', value: number) => { if (selectedObject && canvas && selectedObject.type === 'image') { const img = selectedObject as fabric.FabricImage; if (type === 'blur') setBlur(value); if (type === 'brightness') setBrightness(value); if (type === 'contrast') setContrast(value); const newFilters = []; const currentBlur = type === 'blur' ? value : blur; const currentBright = type === 'brightness' ? value : brightness; const currentContrast = type === 'contrast' ? value : contrast; if (currentBlur > 0) newFilters.push(new fabric.filters.Blur({ blur: currentBlur })); if (currentBright !== 0) newFilters.push(new fabric.filters.Brightness({ brightness: currentBright })); if (currentContrast !== 0) newFilters.push(new fabric.filters.Contrast({ contrast: currentContrast })); img.filters = newFilters; img.applyFilters(); canvas.requestRenderAll(); } };
-  const toggleShadow = (e: React.ChangeEvent<HTMLInputElement>) => { const isChecked = e.target.checked; setShadowEnabled(isChecked); if (selectedObject && canvas) { if (isChecked) { const shadow = new fabric.Shadow({ color: shadowColor, blur: shadowBlur, offsetX: shadowOffsetX, offsetY: shadowOffsetY }); selectedObject.set('shadow', shadow); } else { selectedObject.set('shadow', null); } canvas.requestRenderAll(); } };
-  const updateShadow = (key: 'color' | 'blur' | 'offsetX' | 'offsetY', value: string | number) => { if (key === 'color') setShadowColor(value as string); if (key === 'blur') setShadowBlur(value as number); if (key === 'offsetX') setShadowOffsetX(value as number); if (key === 'offsetY') setShadowOffsetY(value as number); if (selectedObject && canvas && selectedObject.shadow) { (selectedObject.shadow as any)[key] = value; canvas.requestRenderAll(); } };
-  const moveUp = () => { if (selectedObject && canvas) { canvas.bringObjectForward(selectedObject); canvas.requestRenderAll(); } };
-  const moveDown = () => { if (selectedObject && canvas) { canvas.sendObjectBackwards(selectedObject); canvas.requestRenderAll(); } };
-  const moveToTop = () => { if (selectedObject && canvas) { canvas.bringObjectToFront(selectedObject); canvas.requestRenderAll(); } };
-  const moveToBottom = () => { if (selectedObject && canvas) { canvas.sendObjectToBack(selectedObject); canvas.requestRenderAll(); } };
-  const deleteObject = () => { if (selectedObject && canvas) { canvas.remove(selectedObject); canvas.discardActiveObject(); canvas.requestRenderAll(); } };
+  const applyFilterValue = (type: 'blur' | 'brightness' | 'contrast', value: number) => { 
+    if (selectedObject && canvas && selectedObject.type === 'image') { 
+        const img = selectedObject as fabric.Image; 
+        if (type === 'blur') setBlur(value); 
+        if (type === 'brightness') setBrightness(value); 
+        if (type === 'contrast') setContrast(value); 
+        
+        const newFilters = []; 
+        const currentBlur = type === 'blur' ? value : blur; 
+        const currentBright = type === 'brightness' ? value : brightness; 
+        const currentContrast = type === 'contrast' ? value : contrast; 
+        
+        if (currentBlur > 0) newFilters.push(new fabric.filters.Blur({ blur: currentBlur })); 
+        if (currentBright !== 0) newFilters.push(new fabric.filters.Brightness({ brightness: currentBright })); 
+        if (currentContrast !== 0) newFilters.push(new fabric.filters.Contrast({ contrast: currentContrast })); 
+        
+        img.filters = newFilters; 
+        img.applyFilters(); 
+        canvas.requestRenderAll(); 
+    } 
+  };
+
+  const toggleShadow = (e: React.ChangeEvent<HTMLInputElement>) => { 
+      const isChecked = e.target.checked; 
+      setShadowEnabled(isChecked); 
+      if (selectedObject && canvas) { 
+          if (isChecked) { 
+            const shadow = new fabric.Shadow({ color: shadowColor, blur: shadowBlur, offsetX: shadowOffsetX, offsetY: shadowOffsetY }); 
+            selectedObject.set('shadow', shadow); 
+          } else { 
+            selectedObject.set('shadow', null); 
+          } 
+          canvas.requestRenderAll(); 
+      } 
+  };
+
+  const updateShadow = (key: 'color' | 'blur' | 'offsetX' | 'offsetY', value: string | number) => {
+       if (key === 'color') setShadowColor(value as string);
+       else if (key === 'blur') setShadowBlur(value as number);
+       else if (key === 'offsetX') setShadowOffsetX(value as number);
+       else if (key === 'offsetY') setShadowOffsetY(value as number);
+       
+       if (selectedObject && canvas && selectedObject.shadow) {
+           (selectedObject.shadow as any)[key] = value;
+           canvas.requestRenderAll();
+       }
+  };
+
+  const handleLayer = (action: 'top' | 'up' | 'down' | 'bottom') => {
+      if(!selectedObject || !canvas) return;
+      if(action === 'top') canvas.bringToFront(selectedObject);
+      if(action === 'up') canvas.bringForward(selectedObject);
+      if(action === 'down') canvas.sendBackwards(selectedObject);
+      if(action === 'bottom') canvas.sendToBack(selectedObject);
+      canvas.requestRenderAll();
+  };
+
+  const deleteObject = () => { 
+      if (selectedObject && canvas) { 
+          canvas.remove(selectedObject); 
+          canvas.discardActiveObject(); 
+          canvas.requestRenderAll(); 
+      } 
+  };
 
   // --- RENDER CANVAS SETTINGS (No Selection) ---
   if (!selectedObject) {
     return (
-      <div style={panelStyle}>
-        <h3 className='font-font6 tracking-wide text-lg mb-4'>Canvas Background</h3>
+      <div className="w-[300px] h-full bg-[#060010] p-5 text-white overflow-y-auto border-l border-gray-800">
+        <h3 className='font-font6 tracking-wide text-lg mb-4 flex items-center gap-2'>
+            <Palette size={18} /> Canvas Background
+        </h3>
         
-        {/* Gradient Toggle Tabs */}
-        <div style={{display: 'flex', gap: '5px', marginBottom: '20px', background: '#1a1a1a', padding: '4px', borderRadius: '8px'}}>
-            <div onClick={() => handleBgTypeChange('solid')} style={tabStyle(bgType === 'solid')}>Solid</div>
-            <div onClick={() => handleBgTypeChange('gradient')} style={tabStyle(bgType === 'gradient')}>Gradient</div>
+        <div className="flex bg-[#1a1a1a] p-1 rounded-lg mb-6">
+            <button 
+                onClick={() => handleBgTypeChange('solid')} 
+                className={`flex-1 py-2 text-xs rounded-md transition-all ${bgType === 'solid' ? 'bg-[#6366f1] font-bold' : 'text-gray-400 hover:text-white'}`}
+            >
+                Solid
+            </button>
+            <button 
+                onClick={() => handleBgTypeChange('gradient')} 
+                className={`flex-1 py-2 text-xs rounded-md transition-all ${bgType === 'gradient' ? 'bg-[#6366f1] font-bold' : 'text-gray-400 hover:text-white'}`}
+            >
+                Gradient
+            </button>
         </div>
 
         {bgType === 'solid' ? (
-            <div style={rowStyle}>
-                <label style={labelStyle} className='font-font7 tracking-wide'>Color</label>
-                <input type="color" value={bgColor1} onChange={handleBgColor1Change} className='mt-2 size-10 rounded-xl cursor-pointer border-none'/>
+            <div className="space-y-2">
+                <label className="text-xs text-gray-400 block tracking-wide">Color</label>
+                <div className="flex items-center gap-3 bg-[#1a1a2e] p-2 rounded-lg border border-gray-700">
+                    <input type="color" value={bgColor1} onChange={(e) => { setBgColor1(e.target.value); updateBackground('solid', e.target.value, bgColor2); }} className="w-8 h-8 rounded cursor-pointer bg-transparent" />
+                    <span className="text-xs font-mono">{bgColor1}</span>
+                </div>
             </div>
         ) : (
-            <div style={{display:'flex', flexDirection:'col', gap:'10px'}}>
-                <div style={rowStyle}>
-                    <label style={labelStyle} className='font-font7 tracking-wide'>Start Color</label>
-                    <input type="color" value={bgColor1} onChange={handleBgColor1Change} className='mt-2 size-10 rounded-xl cursor-pointer border-none'/>
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <label className="text-xs text-gray-400 block tracking-wide">Start Color</label>
+                    <div className="flex items-center gap-3 bg-[#1a1a2e] p-2 rounded-lg border border-gray-700">
+                        <input type="color" value={bgColor1} onChange={(e) => { setBgColor1(e.target.value); updateBackground('gradient', e.target.value, bgColor2); }} className="w-8 h-8 rounded cursor-pointer bg-transparent" />
+                        <span className="text-xs font-mono">{bgColor1}</span>
+                    </div>
                 </div>
-                <div style={rowStyle}>
-                    <label style={labelStyle} className='font-font7 tracking-wide'>End Color</label>
-                    <input type="color" value={bgColor2} onChange={handleBgColor2Change} className='mt-2 size-10 rounded-xl cursor-pointer border-none'/>
+                <div className="space-y-2">
+                    <label className="text-xs text-gray-400 block tracking-wide">End Color</label>
+                    <div className="flex items-center gap-3 bg-[#1a1a2e] p-2 rounded-lg border border-gray-700">
+                        <input type="color" value={bgColor2} onChange={(e) => { setBgColor2(e.target.value); updateBackground('gradient', bgColor1, e.target.value); }} className="w-8 h-8 rounded cursor-pointer bg-transparent" />
+                        <span className="text-xs font-mono">{bgColor2}</span>
+                    </div>
                 </div>
             </div>
         )}
         
-        <div className="mt-10 p-4 bg-white/5 rounded-xl text-sm text-gray-400">
-            <p>Select an object on the canvas to edit its properties.</p>
+        <div className="mt-10 p-4 bg-white/5 rounded-xl text-sm text-gray-400 text-center border border-white/10">
+            <p>Select an object to edit properties.</p>
         </div>
       </div>
     );
@@ -240,127 +307,156 @@ export const SettingsPanel = () => {
 
   // --- RENDER OBJECT PROPERTIES ---
   return (
-    <div style={panelStyle}>
-      <h3 className='font-font6 tracking-wide text-lg mb-2'>Properties</h3>
-
-      {/* Lock */}
-      <div style={{marginBottom: '15px', background:'transparent', padding:'10px', borderRadius:'5px', display:'flex', justifyContent:'space-between', alignItems:'center'}} className='text-white'>
-         <label style={{ color:'white', cursor:'pointer'}} className='text-sm font-font7 tracking-wide flex items-center justify-start gap-2'>
-            <LockIcon className='size-5'/> Lock Position
-         </label>
-         <input type="checkbox" checked={isLocked} onChange={toggleLock} style={{cursor:'pointer'}} />
+    <div className="w-[300px] h-full bg-[#060010] p-5 text-white overflow-y-auto border-l border-gray-800 font-font7">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className='font-font6 tracking-wide text-lg'>Properties</h3>
+        <div className="flex items-center gap-2 text-xs bg-[#1a1a2e] px-2 py-1 rounded border border-gray-700">
+             <LockIcon size={12} className={isLocked ? 'text-red-400' : 'text-gray-400'}/>
+             <label className="cursor-pointer select-none">
+                Lock <input type="checkbox" checked={isLocked} onChange={toggleLock} className="ml-1 accent-[#6366f1]" />
+             </label>
+        </div>
       </div>
 
-      {/* Image Filters */}
+      {/* SECTION: IMAGE FILTERS */}
       {type === 'image' && (
-        <div style={{ marginBottom: '20px', paddingBottom: '10px', background: '#060010', borderRadius: '5px' }}>
-           <label style={{...labelStyle, color: 'white', marginTop: 0}} className='font-font6 text-lg tracking-wide'>Image Filters</label>
-           <label style={labelStyle} className='font-font7 tracking-wide'>Blur: {blur}</label>
-           <input type="range" min="0" max="1" step="0.05" value={blur} onChange={(e) => applyFilterValue('blur', parseFloat(e.target.value))} style={{width: '100%'}} />
-           <label style={labelStyle} className='font-font7 tracking-wide'>Brightness: {brightness}</label>
-           <input type="range" min="-1" max="1" step="0.05" value={brightness} onChange={(e) => applyFilterValue('brightness', parseFloat(e.target.value))} style={{width: '100%'}} />
-           <label style={labelStyle} className='font-font7 tracking-wide'>Contrast: {contrast}</label>
-           <input type="range" min="-1" max="1" step="0.05" value={contrast} onChange={(e) => applyFilterValue('contrast', parseFloat(e.target.value))} style={{width: '100%'}} />
+        <div className="mb-6 p-4 bg-[#111122] rounded-xl border border-gray-800">
+           <h4 className="flex items-center gap-2 font-font6 text-sm mb-3 text-purple-300">
+               <Sun size={14} /> Image Filters
+           </h4>
+           <div className="space-y-3">
+               <div>
+                   <div className="flex justify-between text-xs text-gray-400 mb-1"><span>Blur</span><span>{blur.toFixed(2)}</span></div>
+                   <input type="range" min="0" max="1" step="0.05" value={blur} onChange={(e) => applyFilterValue('blur', parseFloat(e.target.value))} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+               </div>
+               <div>
+                   <div className="flex justify-between text-xs text-gray-400 mb-1"><span>Brightness</span><span>{brightness.toFixed(2)}</span></div>
+                   <input type="range" min="-1" max="1" step="0.05" value={brightness} onChange={(e) => applyFilterValue('brightness', parseFloat(e.target.value))} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+               </div>
+               <div>
+                   <div className="flex justify-between text-xs text-gray-400 mb-1"><span>Contrast</span><span>{contrast.toFixed(2)}</span></div>
+                   <input type="range" min="-1" max="1" step="0.05" value={contrast} onChange={(e) => applyFilterValue('contrast', parseFloat(e.target.value))} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+               </div>
+           </div>
         </div>
       )}
 
-      {/* Common Props */}
-      <div style={rowStyle}>
-        <label style={labelStyle}>Opacity</label>
-        <input type="range" min="0" max="1" step="0.01" value={opacity} onChange={handleOpacityChange} style={{width: '100%'}} />
-      </div>
-
-      <div style={rowStyle}>
-          <label style={labelStyle}>Blend Mode</label>
-          <select value={blendMode} onChange={handleBlendModeChange} style={textInputStyle} className='bg-[#060010] font-font7 tracking-wide outline-1 outline-white p-2 rounded-lg'>
-             {BLEND_MODES.map(mode => <option key={mode} value={mode}>{mode}</option>)}
-          </select>
-      </div>
-
-      <div style={rowStyle}>
-        <label style={labelStyle}>Tilt (Skew)</label>
-        <input type="range" min="-50" max="50" step="1" value={skewX} onChange={handleSkewXChange} style={{width: '100%'}} />
-      </div>
-      
-      {/* Text Props */}
-      {(type === 'i-text' || type === 'text') && (
-        <div style={{ marginBottom: '20px', paddingBottom: '10px', marginTop: '30px'}}>
-          <label style={labelStyle}>Content</label>
-          <input type="text" value={textContent} onChange={handleTextContentChange} style={textInputStyle} className='outline-1 outline-white rounded-lg p-2 font-font7 tracking-wide'/>
-          <label style={labelStyle}>Font</label>
-          <select value={fontFamily} onChange={handleFontFamilyChange} style={textInputStyle} className='outline-1 outline-white p-2 bg-[#060010] rounded-lg'>
-             {FONT_FAMILIES.map(font => <option key={font} value={font}>{font}</option>)}
-          </select>
-          <label style={labelStyle}>Size</label>
-          <input type="number" value={fontSize} onChange={handleFontSizeChange} style={numberInputStyle} className='outline-1 outline-white rounded-lg p-2 font-font7 tracking-wide'/>
-          <label style={labelStyle}>Spacing</label>
-          <input type="range" min="-50" max="1000" step="10" value={charSpacing} onChange={handleCharSpacingChange} style={{width:'100%'}} />
-        </div>
-      )}
-
-      {/* Colors */}
-      {type !== 'image' && (
-        <div style={rowStyle}>
-          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-              <div>
-                  <label style={labelStyle}>Fill</label>
-                  <input type="color" value={color} onChange={handleColorChange} disabled={isTransparent} style={{opacity: isTransparent ? 0.5 : 1}} className='size-10 rounded-xl border-none'/>
-              </div>
-              <label style={{fontSize:'12px', display:'flex', alignItems:'center', gap:'5px', cursor:'pointer'}}>
-                  <input type="checkbox" checked={isTransparent} onChange={toggleTransparent} /> Transparent
-              </label>
-          </div>
-          
-          <div style={{marginTop: '15px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-            <div>
-                <label style={labelStyle}>Border</label>
-                <input type="color" value={stroke} onChange={handleStrokeChange} className='size-10 rounded-xl border-none'/>
-            </div>
-            <div style={{width: '60%'}}>
-                <label style={labelStyle}>Width: {strokeWidth}px</label>
-                <input type="range" min="0" max="20" value={strokeWidth} onChange={handleStrokeWidthChange} style={{width: '100%'}} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Shadow */}
-      <div style={{ marginBottom: '20px', paddingTop: '15px', marginTop:'30px'}}>
-         <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-            <label style={{...labelStyle, marginTop:0}}>Shadow / Glow</label>
-            <input type="checkbox" checked={shadowEnabled} onChange={toggleShadow} style={{cursor:'pointer'}} />
-         </div>
-         {shadowEnabled && (
-             <div style={{marginTop: '10px', paddingLeft: '10px'}} className='font-font7 text-white tracking-wide' >
-                 <div style={{marginBottom: '10px', display:'flex', justifyContent:'space-between'}}>
-                     <label>Color</label>
-                     <input type="color" value={shadowColor} onChange={(e) => updateShadow('color', e.target.value)} className='size-8 rounded-lg border-none'/>
-                 </div>
-                 <div style={{marginBottom: '5px'}}><label>Blur</label><input type="range" min="0" max="100" value={shadowBlur} onChange={(e) => updateShadow('blur', parseInt(e.target.value))} style={{width: '100%'}} /></div>
-                 <div style={{marginBottom: '5px'}}><label>X</label><input type="range" min="-50" max="50" value={shadowOffsetX} onChange={(e) => updateShadow('offsetX', parseInt(e.target.value))} style={{width: '100%'}} /></div>
-                 <div style={{marginBottom: '5px'}}><label>Y</label><input type="range" min="-50" max="50" value={shadowOffsetY} onChange={(e) => updateShadow('offsetY', parseInt(e.target.value))} style={{width: '100%'}} /></div>
+      {/* SECTION: TEXT */}
+      {(type === 'i-text' || type === 'text' || type === 'textbox') && (
+        <div className="mb-6 space-y-4">
+             <div className="flex items-center gap-2 text-sm font-font6 text-purple-300"><Type size={14}/> Text</div>
+             <input 
+                type="text" 
+                value={textContent} 
+                onChange={(e) => { setTextContent(e.target.value); updateProp('text', e.target.value); }} 
+                className="w-full bg-[#1a1a2e] border border-gray-700 rounded p-2 text-sm focus:border-[#6366f1] outline-none"
+             />
+             <div className="grid grid-cols-2 gap-2">
+                 <select 
+                    value={fontFamily} 
+                    onChange={(e) => { setFontFamily(e.target.value); updateProp('fontFamily', e.target.value); }} 
+                    className="bg-[#1a1a2e] border border-gray-700 rounded p-2 text-xs outline-none"
+                 >
+                    {FONT_FAMILIES.map(f => <option key={f} value={f}>{f}</option>)}
+                 </select>
+                 <input 
+                    type="number" 
+                    value={fontSize} 
+                    onChange={(e) => { setFontSize(parseInt(e.target.value)); updateProp('fontSize', parseInt(e.target.value)); }} 
+                    className="bg-[#1a1a2e] border border-gray-700 rounded p-2 text-xs outline-none"
+                 />
              </div>
-         )}
+             <div>
+                <label className="text-xs text-gray-400 block mb-1">Letter Spacing</label>
+                <input type="range" min="-50" max="800" step="10" value={charSpacing} onChange={(e) => { setCharSpacing(parseInt(e.target.value)); updateProp('charSpacing', parseInt(e.target.value)); }} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded-lg appearance-none" />
+             </div>
+        </div>
+      )}
+
+      {/* SECTION: COLORS & STROKE */}
+      {type !== 'image' && (
+        <div className="mb-6 space-y-4 border-t border-gray-800 pt-4">
+             <div className="flex items-center gap-2 text-sm font-font6 text-purple-300"><Palette size={14}/> Appearance</div>
+             
+             {/* Fill */}
+             <div className="flex items-center justify-between">
+                 <label className="text-xs text-gray-400">Fill Color</label>
+                 <div className="flex items-center gap-2">
+                     <div className="relative overflow-hidden w-8 h-8 rounded-full border border-gray-600">
+                        <input type="color" value={color} onChange={handleColorChange} disabled={isTransparent} className={`absolute -top-2 -left-2 w-12 h-12 cursor-pointer ${isTransparent ? 'opacity-20' : ''}`} />
+                     </div>
+                     <label className="text-xs flex items-center gap-1 cursor-pointer select-none">
+                        <input type="checkbox" checked={isTransparent} onChange={toggleTransparent} className="accent-[#6366f1]" /> 
+                        No Fill
+                     </label>
+                 </div>
+             </div>
+
+             {/* Stroke */}
+             <div className="space-y-2">
+                 <div className="flex items-center justify-between">
+                    <label className="text-xs text-gray-400">Border</label>
+                    <div className="relative overflow-hidden w-6 h-6 rounded-full border border-gray-600">
+                        <input type="color" value={stroke} onChange={(e) => { setStroke(e.target.value); updateProp('stroke', e.target.value); }} className="absolute -top-2 -left-2 w-10 h-10 cursor-pointer" />
+                    </div>
+                 </div>
+                 <input type="range" min="0" max="20" value={strokeWidth} onChange={(e) => { setStrokeWidth(parseInt(e.target.value)); updateProp('strokeWidth', parseInt(e.target.value)); }} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded-lg appearance-none" />
+             </div>
+        </div>
+      )}
+
+      {/* SECTION: COMMON (Opacity, Blend, Shadow) */}
+      <div className="space-y-4 mb-6">
+          <div>
+            <div className="flex justify-between text-xs text-gray-400 mb-1"><span>Opacity</span><span>{Math.round(opacity * 100)}%</span></div>
+            <input type="range" min="0" max="1" step="0.01" value={opacity} onChange={(e) => { setOpacity(parseFloat(e.target.value)); updateProp('opacity', parseFloat(e.target.value)); }} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded-lg appearance-none" />
+          </div>
+
+          <div>
+             <label className="text-xs text-gray-400 block mb-1">Blend Mode</label>
+             <select value={blendMode} onChange={(e) => { setBlendMode(e.target.value); updateProp('globalCompositeOperation', e.target.value); }} className="w-full bg-[#1a1a2e] border border-gray-700 rounded p-2 text-xs outline-none">
+                {BLEND_MODES.map(mode => <option key={mode} value={mode}>{mode}</option>)}
+             </select>
+          </div>
+
+          {/* Shadow Toggle */}
+          <div className="bg-[#1a1a2e] p-3 rounded-lg border border-gray-800">
+              <div className="flex items-center justify-between mb-2">
+                 <label className="text-xs font-bold">Shadow</label>
+                 <input type="checkbox" checked={shadowEnabled} onChange={toggleShadow} className="accent-[#6366f1]" />
+              </div>
+              {shadowEnabled && (
+                  <div className="space-y-2 pt-2 border-t border-gray-700/50">
+                      <div className="flex items-center justify-between">
+                          <label className="text-[10px] text-gray-400">Color</label>
+                          <input type="color" value={shadowColor} onChange={(e) => updateShadow('color', e.target.value)} className="w-4 h-4 rounded bg-transparent cursor-pointer" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                          <div><label className="text-[10px] text-gray-400">Blur</label><input type="range" min="0" max="50" value={shadowBlur} onChange={(e) => updateShadow('blur', parseInt(e.target.value))} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded appearance-none" /></div>
+                          <div><label className="text-[10px] text-gray-400">X</label><input type="range" min="-20" max="20" value={shadowOffsetX} onChange={(e) => updateShadow('offsetX', parseInt(e.target.value))} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded appearance-none" /></div>
+                      </div>
+                  </div>
+              )}
+          </div>
       </div>
       
-      {/* Layering */}
-      <div style={{ marginBottom: '20px', paddingTop: '15px' }}>
-        <label style={labelStyle} className='font-font6 tracking-wide text-lg mb-2'>Layering</label>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-          <button onClick={moveToTop} title="Top" className='bg-pink-700 p-2 rounded-lg hover:scale-105'><ArrowUpFromDot className='size-5'/></button>
-          <button onClick={moveUp} title="Up" className='bg-pink-700 p-2 rounded-lg hover:scale-105'><ChevronUp className='size-5'/></button>
-          <button onClick={moveDown} title="Down" className='bg-pink-700 p-2 rounded-lg hover:scale-105'><ChevronDown className='size-5'/></button>
-          <button onClick={moveToBottom} title="Bottom" className='bg-pink-700 p-2 rounded-lg hover:scale-105'><ArrowDownToDot className='size-5'/></button>
+      {/* SECTION: LAYERS */}
+      <div className="mb-6">
+        <label className='font-font6 tracking-wide text-sm mb-2 block text-purple-300 flex items-center gap-2'><Layers size={14}/> Layering</label>
+        <div className="flex gap-2">
+          <button onClick={() => handleLayer('top')} title="Bring to Front" className='flex-1 bg-[#1a1a2e] hover:bg-[#6366f1] p-2 rounded transition-colors flex justify-center border border-gray-700'><ArrowUpFromDot size={16}/></button>
+          <button onClick={() => handleLayer('up')} title="Bring Forward" className='flex-1 bg-[#1a1a2e] hover:bg-[#6366f1] p-2 rounded transition-colors flex justify-center border border-gray-700'><ChevronUp size={16}/></button>
+          <button onClick={() => handleLayer('down')} title="Send Backward" className='flex-1 bg-[#1a1a2e] hover:bg-[#6366f1] p-2 rounded transition-colors flex justify-center border border-gray-700'><ChevronDown size={16}/></button>
+          <button onClick={() => handleLayer('bottom')} title="Send to Back" className='flex-1 bg-[#1a1a2e] hover:bg-[#6366f1] p-2 rounded transition-colors flex justify-center border border-gray-700'><ArrowDownToDot size={16}/></button>
         </div>
       </div>
 
-      <button onClick={deleteObject} style={deleteBtnStyle} className='flex items-center justify-center gap-2 bg-red-600 rounded-xl'><Trash2Icon size={18}/> Delete Object</button>
+      <button 
+        onClick={deleteObject} 
+        className='w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/50 p-2 rounded-lg transition-all font-bold text-sm mt-4'
+      >
+        <Trash2Icon size={16}/> Delete Layer
+      </button>
     </div>
   );
 };
-
-const panelStyle: React.CSSProperties = { width: '300px', padding: '20px', background: '#060010', overflowY: 'auto', color: 'white' };
-const labelStyle: React.CSSProperties = { display: 'block', marginTop: '10px', fontSize: '12px', opacity: 0.8 };
-const textInputStyle: React.CSSProperties = { width: '100%', marginTop: '5px' };
-const numberInputStyle: React.CSSProperties = { width: '100%', marginTop: '5px' };
-const rowStyle: React.CSSProperties = { marginTop: '15px' };

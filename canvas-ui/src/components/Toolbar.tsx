@@ -1,10 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import * as fabric from 'fabric';
+import React, { useEffect, useState } from 'react';
+import { fabric } from 'fabric';
 import { useEditorStore, type AIResponse, type LayoutConfig  } from '../store/editorStore';
-import { CaseSensitive, Circle, Download, RectangleHorizontal, Triangle, Upload } from 'lucide-react';
+import { 
+  CaseSensitive, 
+  Circle, 
+  Download, 
+  RectangleHorizontal, 
+  Triangle, 
+  Sparkles 
+} from 'lucide-react';
 
+// --- FULL MOCK DATA ---
 const fullCampaign: AIResponse = {
-instagram_story: {
+  instagram_story: {
     width: 1080,
     height: 1920,
     backgroundColor: "#0f0c29",
@@ -84,7 +92,7 @@ instagram_story: {
       },
       {
         type: "image",
-        url: "https://placehold.co/600x600",
+        url: "https://placehold.co/600x600/png",
         top: 960,
         left: 540,
         originX: "center",
@@ -213,7 +221,7 @@ instagram_story: {
       },
       {
         type: "image",
-        url: "https://placehold.co/600x600",
+        url: "https://placehold.co/600x600/png",
         top: 540,
         left: 540,
         originX: "center",
@@ -341,7 +349,7 @@ instagram_story: {
       },
       {
         type: "image",
-        url: "https://placehold.co/600x600",
+        url: "https://placehold.co/600x600/png",
         top: 314,
         left: 900,
         originX: "center",
@@ -352,46 +360,42 @@ instagram_story: {
       }
     ]
   }
-}
+};
 
-// --- 2. TOOLBAR COMPONENT ---
+// --- TOOLBAR COMPONENT ---
 export const Toolbar = () => {
   const { canvas, width, height, aiDesign, setAiDesign } = useEditorStore();
   const [loading, setLoading] = useState(false);
 
-    // --- 4. LOAD CAMPAIGN ACTION (BURGER AD STYLE) ---
+  // --- ACTIONS ---
   const loadAIcampaign = async () => {
     setLoading(true);
-
-    setAiDesign(aiDesign)
-    setLoading(false);
+    // Simulate API delay
+    setTimeout(() => {
+        setAiDesign(fullCampaign); 
+        setLoading(false);
+    }, 500);
   };
 
-  // --- 3. RENDER ENGINE ---
-  useEffect(()=>{
-    loadAIcampaign(); 
-  }, [])
-
-  const renderDesign = async (data: AIResponse) => {
+  const renderDesign = async (data: LayoutConfig) => {
     if (!canvas) return;
     canvas.clear();
 
-    // Set background
+    // 1. Set Background
     if (data.backgroundGradient) {
       const bgGradient = new fabric.Gradient({
         type: data.backgroundGradient.type,
         coords: data.backgroundGradient.coords,
         colorStops: data.backgroundGradient.stops
       });
-      // @ts-ignore
-      canvas.backgroundColor = bgGradient;
+      canvas.setBackgroundColor(bgGradient as any, canvas.renderAll.bind(canvas));
     } else {
-      // @ts-ignore
-      canvas.backgroundColor = data.backgroundColor || '#ffffff';
+      canvas.setBackgroundColor(data.backgroundColor || '#ffffff', canvas.renderAll.bind(canvas));
     }
 
-    // Render Shapes (Rect, Circle, etc.)
-    data.elements.forEach(item => {
+    // 2. Render Elements
+    const renderPromises = data.elements.map(async (item) => {
+      // RECTANGLE
       if (item.type === 'rect') {
         const rect = new fabric.Rect({
           top: item.top,
@@ -404,13 +408,14 @@ export const Toolbar = () => {
           rx: item.rx || 0,
           ry: item.ry || 0,
           angle: item.angle || 0,
-          originX: item.originX || 'left',
-          originY: item.originY || 'top',
+          originX: item.originX as any || 'left',
+          originY: item.originY as any || 'top',
           selectable: item.selectable !== undefined ? item.selectable : true
         });
         canvas.add(rect);
       }
 
+      // CIRCLE
       if (item.type === 'circle') {
         const circle = new fabric.Circle({
           top: item.top,
@@ -420,24 +425,19 @@ export const Toolbar = () => {
           stroke: item.stroke,
           strokeWidth: item.strokeWidth || 0,
           opacity: item.opacity !== undefined ? item.opacity : 1,
-          originX: item.originX || 'left',
-          originY: item.originY || 'top',
+          originX: item.originX as any || 'left',
+          originY: item.originY as any || 'top',
           selectable: item.selectable !== undefined ? item.selectable : true
         });
         
-        // Apply shadow/blur effect if needed
-        if (item.blur) {
-          circle.set('shadow', new fabric.Shadow({
-            color: item.fill || 'rgba(0,0,0,0.5)',
-            blur: item.blur,
-            offsetX: 0,
-            offsetY: 0
-          }));
+        if (item.shadow) {
+            // @ts-ignore
+            circle.set('shadow', new fabric.Shadow({ ...item.shadow }));
         }
-        
         canvas.add(circle);
       }
       
+      // TEXT
       if (item.type === 'text' && item.content) {
         let baseSize = Math.min(item.fontSize || 40, 80); 
         const textObj = new fabric.IText(item.content, {
@@ -447,65 +447,60 @@ export const Toolbar = () => {
           fontFamily: item.fontFamily || 'Arial',
           fontWeight: item.fontWeight || 'normal',
           fill: item.color || '#000',
-          originX: item.originX || 'left',
-          originY: item.originY || 'top',
+          originX: item.originX as any || 'left',
+          originY: item.originY as any || 'top',
           skewX: item.skewX,
           charSpacing: item.charSpacing || 0,
           selectable: item.selectable !== undefined ? item.selectable : true
         });
         
-        // Scale workaround for large text
         if (item.fontSize && item.fontSize > baseSize) {
           textObj.scaleToHeight(item.fontSize);
         }
+        if (item.scaleX) textObj.set({ scaleX: item.scaleX });
+        if (item.scaleY) textObj.set({ scaleY: item.scaleY });
+        if (item.opacity) textObj.set({ opacity: item.opacity });
+
         canvas.add(textObj);
+      }
+
+      // IMAGE (Using correct v5 syntax)
+      if (item.type === 'image' && item.url) {
+        return new Promise<void>((resolve) => {
+           fabric.Image.fromURL(item.url!, (img) => {
+              img.set({
+                top: item.top,
+                left: item.left,
+                originX: item.originX as any || 'left',
+                originY: item.originY as any || 'top',
+                angle: item.angle || 0,
+                selectable: item.selectable !== undefined ? item.selectable : true
+              });
+              
+              if (item.width) img.scaleToWidth(item.width);
+              
+              if (item.shadow) {
+                // @ts-ignore
+                img.set('shadow', new fabric.Shadow({ ...item.shadow }));
+              }
+
+              canvas.add(img);
+              resolve();
+           }, { crossOrigin: 'anonymous' });
+        });
       }
     });
 
-    // Load images asynchronously
-    const imageItems = data.elements.filter(i => i.type === "image" && i.url);
-    await Promise.all(imageItems.map(item =>
-      new Promise<void>((resolve) => {
-        fabric.FabricImage.fromURL(item.url!, { crossOrigin: 'anonymous' }).then(img => {
-          img.set({
-            top: item.top,
-            left: item.left,
-            originX: item.originX || 'left',
-            originY: item.originY || 'top',
-            angle: item.angle || 0,
-            selectable: item.selectable !== undefined ? item.selectable : true
-          });
-          
-          if (item.width) img.scaleToWidth(item.width);
-          
-          if (item.shadow) {
-            img.set('shadow', new fabric.Shadow({
-              color: item.shadow.color || 'rgba(0,0,0,0.5)',
-              blur: item.shadow.blur || 10,
-              offsetX: item.shadow.offsetX || 0,
-              offsetY: item.shadow.offsetY || 0
-            }));
-          }
-
-          canvas.add(img);
-          // If background texture, send to back, otherwise keep logical order
-          // Simple layering: usually images are main subjects, so we keep them added in order
-          resolve();
-        });
-      })
-    ));
-
+    await Promise.all(renderPromises);
     canvas.requestRenderAll();
   };
 
+  // --- EFFECT: WATCH FOR SIZE CHANGES OR NEW AI DATA ---
   useEffect(() => {
     if (!aiDesign || !canvas) return;
 
-    console.log(`Detecting size change: ${width}x${height}`);
-
     let layoutToRender: LayoutConfig | null = null;
 
-    // Match current size to the correct design key
     if (width === 1080 && height === 1920) {
       layoutToRender = aiDesign.instagram_story;
     } else if (width === 1080 && height === 1080) {
@@ -517,19 +512,13 @@ export const Toolbar = () => {
     if (layoutToRender) {
       renderDesign(layoutToRender);
     }
+  }, [width, height, aiDesign, canvas]);
 
-  }, [width, height, aiDesign, canvas]); // <--- Dependencies trigger the effect  
-
-  // --- 5. STANDARD TOOLS ---
+  // --- STANDARD TOOLS ---
   const addText = () => {
     if (!canvas) return;
     const text = new fabric.IText('Double Click to Edit', {
-      left: 100,
-      top: 100,
-      fontFamily: 'Arial',
-      fontSize: 40,
-      fill: '#333333',
-      fontWeight: 'bold'
+      left: 100, top: 100, fontFamily: 'Arial', fontSize: 40, fill: '#333333', fontWeight: 'bold'
     });
     canvas.add(text);
     canvas.setActiveObject(text);
@@ -539,13 +528,7 @@ export const Toolbar = () => {
   const addRectangle = () => {
     if (!canvas) return;
     const rect = new fabric.Rect({
-      left: 150,
-      top: 150,
-      fill: '#ffde7d',
-      width: 200,
-      height: 100,
-      rx: 10,
-      ry: 10
+      left: 150, top: 150, fill: '#ffde7d', width: 200, height: 100, rx: 10, ry: 10
     });
     canvas.add(rect);
     canvas.setActiveObject(rect);
@@ -555,10 +538,7 @@ export const Toolbar = () => {
   const addCircle = () => {
     if (!canvas) return;
     const circle = new fabric.Circle({
-      left: 150,
-      top: 150,
-      fill: '#f6416c',
-      radius: 60
+      left: 150, top: 150, fill: '#f6416c', radius: 60
     });
     canvas.add(circle);
     canvas.setActiveObject(circle);
@@ -568,11 +548,7 @@ export const Toolbar = () => {
   const addTriangle = () => {
     if (!canvas) return;
     const triangle = new fabric.Triangle({
-      left: 200,
-      top: 200,
-      fill: '#6366f1',
-      width: 100,
-      height: 100
+      left: 200, top: 200, fill: '#6366f1', width: 100, height: 100
     });
     canvas.add(triangle);
     canvas.setActiveObject(triangle);
@@ -595,48 +571,39 @@ export const Toolbar = () => {
   };
 
   return (
-    <div style={containerStyle}>
+    <div className="w-[80px] h-full flex flex-col gap-4 p-4 bg-[#060010] border-r border-gray-800 items-center">
       <button
         onClick={loadAIcampaign}
-        style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: 'white', border: 'none' }}
-        className='font-soft tracking-wider text-xl rounded-xl hover:scale-105 cursor-pointer transition-all duration-75 p-2 py-3 flex items-center justify-center'
+        className='w-full aspect-square bg-gradient-to-br from-[#6366f1] to-[#a855f7] text-white rounded-xl hover:scale-105 transition-all flex items-center justify-center shadow-lg shadow-purple-500/20'
+        title="Generate AI Design"
       >
-        {loading ? <span className="animate-spin">⏳</span> : "AI"}
+        {loading ? <span className="animate-spin">⏳</span> : <Sparkles size={24} />}
       </button>
-      <hr style={{ width: '100%', borderColor: '#333', margin: '10px 0' }} />
+      
+      <div className="w-full h-px bg-gray-800 my-2" />
 
-      <button onClick={addText} className='p-3 flex items-center justify-center bg-pink-700 text-white rounded-2xl hover:scale-105 cursor-pointer transition-all duration-75'>
-        <CaseSensitive size={32} />
+      <button onClick={addText} className='w-full aspect-square bg-[#1a1a2e] hover:bg-[#6366f1] text-white rounded-xl transition-all flex items-center justify-center border border-gray-700'>
+        <CaseSensitive size={24} />
       </button>
-      <button onClick={addCircle} className='p-3 flex items-center justify-center bg-pink-700 text-white rounded-2xl hover:scale-105 cursor-pointer transition-all duration-75'>
-        <Circle size={32} />
+      <button onClick={addCircle} className='w-full aspect-square bg-[#1a1a2e] hover:bg-[#6366f1] text-white rounded-xl transition-all flex items-center justify-center border border-gray-700'>
+        <Circle size={24} />
       </button>
-      <button onClick={addRectangle} className='p-3 flex items-center justify-center bg-pink-700 text-white rounded-2xl hover:scale-105 cursor-pointer transition-all duration-75'>
-        <RectangleHorizontal size={32} />
+      <button onClick={addRectangle} className='w-full aspect-square bg-[#1a1a2e] hover:bg-[#6366f1] text-white rounded-xl transition-all flex items-center justify-center border border-gray-700'>
+        <RectangleHorizontal size={24} />
       </button>
-      <button onClick={addTriangle} className='p-3 flex items-center justify-center bg-pink-700 text-white rounded-2xl hover:scale-105 cursor-pointer transition-all duration-75'>
-        <Triangle size={32} />
+      <button onClick={addTriangle} className='w-full aspect-square bg-[#1a1a2e] hover:bg-[#6366f1] text-white rounded-xl transition-all flex items-center justify-center border border-gray-700'>
+        <Triangle size={24} />
       </button>
 
-      <div style={{ marginTop: '20px', width: '100%' }}>
+      <div className="mt-auto w-full">
         <button
           onClick={downloadCanvas}
-          style={{ background: '#10b981', color: 'white', border: 'none' }}
-          className='text-md rounded-2xl font-soft font-bold p-4 tracking-wider hover:scale-105 cursor-pointer transition-all duration-75 w-full flex justify-center'
+          className='w-full aspect-square bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl transition-all flex items-center justify-center shadow-lg shadow-emerald-500/20'
+          title="Download PNG"
         >
           <Download size={24} />
         </button>
       </div>
     </div>
   );
-};
-
-const containerStyle = {
-  width: '80px',
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column' as const,
-  gap: '15px',
-  padding: '20px 10px',
-  backgroundColor: '#060010'
 };

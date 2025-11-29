@@ -1,13 +1,25 @@
-import { useState } from "react";
 import { useBrandKitStore } from "../../../store/useBrandKitStore";
 
 interface StepOneProps {
   onNext: () => void;
 }
 
+const PRESET_CATEGORIES = [
+  "food",
+  "beauty",
+  "fashion",
+  "electronics",
+  "home",
+  "grocery",
+];
+
 export default function StepOne({ onNext }: StepOneProps) {
   const {
+    brandName,
     brandCategory,
+    brandTagline,
+    colorsJson,
+    logoFile,
     setBrandName,
     setBrandCategory,
     setBrandTagline,
@@ -15,30 +27,25 @@ export default function StepOne({ onNext }: StepOneProps) {
     setLogoFile,
   } = useBrandKitStore();
 
-  const [fileName, setFileName] = useState("");
-  const [customCategory, setCustomCategory] = useState("");
+  // Helper to determine if the current category is a custom one
+  const isCustomCategory =
+    brandCategory && !PRESET_CATEGORIES.includes(brandCategory);
+  
+  // Helper for the Select value
+  const selectValue = isCustomCategory ? "other" : brandCategory;
 
-  // For color theme
-  const [primaryColor, setPrimaryColor] = useState("#8b5cf6");
-  const [secondaryColor, setSecondaryColor] = useState("#ffffff");
-
-  function handleColorSave() {
+  const handleColorChange = (key: string, value: string) => {
     setColorsJson({
-      primary: primaryColor,
-      secondary: secondaryColor,
+      ...colorsJson,
+      [key]: value,
     });
-  }
+  };
 
   return (
-    // Main Container: Flex column, max height 80vh, with scroll handling
     <div className="flex flex-col gap-10 text-white max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar">
-      
-      {/* TITLE */}
       <h3 className="text-3xl font-bold-heading shrink-0">Brand Details</h3>
 
-      {/* FORM CONTENT WRAPPER */}
       <div className="flex flex-col gap-8">
-        
         {/* BRAND NAME */}
         <div className="flex flex-col gap-2">
           <label className="block text-sm font-sub-heading text-gray-300">
@@ -46,14 +53,10 @@ export default function StepOne({ onNext }: StepOneProps) {
           </label>
           <input
             type="text"
+            value={brandName}
             onChange={(e) => setBrandName(e.target.value)}
             placeholder="e.g., Nescafé"
-            className="
-              w-full px-4 py-3 rounded-xl bg-[#111]
-              border border-white/20 text-white placeholder-white/40
-              focus:border-violet-400 focus:ring-2 focus:ring-violet-400/40
-              transition
-            "
+            className="w-full px-4 py-3 rounded-xl bg-[#111] border border-white/20 text-white placeholder-white/40 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/40 transition"
           />
         </div>
 
@@ -63,18 +66,17 @@ export default function StepOne({ onNext }: StepOneProps) {
             Brand Category (optional)
           </label>
           <select
-            value={brandCategory}
+            value={selectValue}
             onChange={(e) => {
               const value = e.target.value;
-              setBrandCategory(value);
-              if (value !== "other") setCustomCategory("");
+              // If user selects "other", clear category so input shows empty or keeps previous custom
+              if (value === "other") {
+                setBrandCategory(""); 
+              } else {
+                setBrandCategory(value);
+              }
             }}
-            className="
-              w-full px-4 py-3 rounded-xl bg-[#111]
-              border border-white/20 text-white
-              focus:border-violet-400 focus:ring-2 focus:ring-violet-400/40
-              transition
-            "
+            className="w-full px-4 py-3 rounded-xl bg-[#111] border border-white/20 text-white focus:border-violet-400 focus:ring-2 focus:ring-violet-400/40 transition"
           >
             <option value="">Select category</option>
             <option value="food">Food & Beverages</option>
@@ -87,41 +89,15 @@ export default function StepOne({ onNext }: StepOneProps) {
           </select>
 
           {/* Custom Category Input */}
-          {brandCategory === "other" && (
+          {(selectValue === "other" || isCustomCategory) && (
             <input
               type="text"
-              value={customCategory}
-              onChange={(e) => {
-                setCustomCategory(e.target.value);
-                setBrandCategory(e.target.value);
-              }}
+              value={brandCategory}
+              onChange={(e) => setBrandCategory(e.target.value)}
               placeholder="Please specify your category"
-              className="
-                w-full px-4 py-3 rounded-xl bg-[#111]
-                border border-white/20 text-white placeholder-white/40
-                focus:border-violet-400 focus:ring-2 focus:ring-violet-400/40
-                transition mt-2
-              "
+              className="w-full px-4 py-3 rounded-xl bg-[#111] border border-white/20 text-white placeholder-white/40 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/40 transition mt-2"
             />
           )}
-        </div>
-
-        {/* BRAND TAGLINE */}
-        <div className="flex flex-col gap-2">
-          <label className="block text-sm font-sub-heading text-gray-300">
-            Brand Tagline (optional)
-          </label>
-          <input
-            type="text"
-            onChange={(e) => setBrandTagline(e.target.value)}
-            placeholder="e.g., It All Starts With a Nescafé"
-            className="
-              w-full px-4 py-3 rounded-xl bg-[#111]
-              border border-white/20 text-white placeholder-white/40
-              focus:border-violet-400 focus:ring-2 focus:ring-violet-400/40
-              transition
-            "
-          />
         </div>
 
         {/* COLOR THEME PICKER */}
@@ -135,8 +111,8 @@ export default function StepOne({ onNext }: StepOneProps) {
               <p className="text-xs text-gray-400 mb-1">Primary</p>
               <input
                 type="color"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
+                value={colorsJson.primary || "#8b5cf6"}
+                onChange={(e) => handleColorChange("primary", e.target.value)}
                 className="w-12 h-12 rounded-lg border border-white/20 cursor-pointer"
               />
             </div>
@@ -145,22 +121,12 @@ export default function StepOne({ onNext }: StepOneProps) {
               <p className="text-xs text-gray-400 mb-1">Secondary</p>
               <input
                 type="color"
-                value={secondaryColor}
-                onChange={(e) => setSecondaryColor(e.target.value)}
+                value={colorsJson.secondary || "#ffffff"}
+                onChange={(e) => handleColorChange("secondary", e.target.value)}
                 className="w-12 h-12 rounded-lg border border-white/20 cursor-pointer"
               />
             </div>
           </div>
-
-          {/* <button
-            onClick={handleColorSave}
-            className="
-              self-start px-4 py-2 mt-2 rounded-lg bg-white/10 text-white
-              border border-white/10 hover:bg-white/20 transition
-            "
-          >
-            Save Colors
-          </button> */}
         </div>
 
         {/* LOGO UPLOAD */}
@@ -169,13 +135,7 @@ export default function StepOne({ onNext }: StepOneProps) {
             Upload Logo
           </label>
 
-          <label
-            className="
-              self-start bg-violet-300 text-black font-semibold
-              px-4 py-2 rounded-lg cursor-pointer text-sm
-              hover:bg-violet-400 transition
-            "
-          >
+          <label className="self-start bg-violet-300 text-black font-semibold px-4 py-2 rounded-lg cursor-pointer text-sm hover:bg-violet-400 transition">
             Choose Logo
             <input
               type="file"
@@ -183,29 +143,22 @@ export default function StepOne({ onNext }: StepOneProps) {
               onChange={(e) => {
                 const file = e.target.files?.[0] || null;
                 setLogoFile(file);
-                setFileName(file ? file.name : "");
               }}
               className="hidden"
             />
           </label>
 
-          {fileName && (
+          {logoFile && (
             <p className="text-sm text-gray-300 mt-1">
-              Selected: <span className="font-semibold">{fileName}</span>
+              Selected: <span className="font-semibold">{logoFile.name}</span>
             </p>
           )}
         </div>
       </div>
 
-      {/* CONTINUE BUTTON - Using mt-auto to push to bottom if space permits, otherwise it flows naturally */}
       <button
         onClick={onNext}
-        className="
-          mt-auto mb-2 px-6 py-3 rounded-xl
-          bg-violet-300 text-black font-bold
-          hover:bg-violet-400 active:scale-95
-          transition shrink-0 cursor-pointer
-        "
+        className="mt-auto mb-2 px-6 py-3 rounded-xl bg-violet-300 text-black font-bold hover:bg-violet-400 active:scale-95 transition shrink-0 cursor-pointer"
       >
         Continue →
       </button>
