@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
@@ -402,24 +403,58 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 		images = []db.ProductImage{}
 	}
 
+	// === CONCURRENCY FIX START ===
 	image_descriptions := make(map[string]string)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 
 	for _, image := range images {
-		description, err := h.getImageDescription(r.Context(), image.ImageUrl)
-		if err != nil {
-			log.Printf("ERROR: Unable to describe the image, error: %v\n", err)
-			description = "A product image"
-		}
-		image_descriptions[image.ImageUrl] = description
+		wg.Add(1)
+		go func(imgURL string) {
+			defer wg.Done()
+			description, err := h.getImageDescription(r.Context(), imgURL)
+			if err != nil {
+				log.Printf("WARN: Unable to describe image %s: %v\n", imgURL, err)
+				description = "A product image"
+			}
+			mu.Lock()
+			image_descriptions[imgURL] = description
+			mu.Unlock()
+		}(image.ImageUrl)
 	}
+	wg.Wait()
+	// === CONCURRENCY FIX END ===
 
 	var ImageUrlArray []string
 	for _, image := range images {
 		ImageUrlArray = append(ImageUrlArray, image.ImageUrl)
 	}
 
+	// === TAGLINE FIX START ===
+	// Extract the tagline from the raw JSON rules string
+	var rulesData struct {
+		Tagline string `json:"tagline"`
+		Prompt  string `json:"prompt"`
+		Tone    string `json:"tone"`
+	}
+	// Attempt to unmarshal. If it fails, we fall back to raw string.
+	_ = json.Unmarshal([]byte(kit.RulesText.String), &rulesData)
+
+	// Construct a forceful prompt for the LLM
+	finalUserPrompt := fmt.Sprintf(`
+	DESIGN CONTEXT: %s
+	BRAND TONE: %s
+	MANDATORY TAGLINE TO INCLUDE (Do not ignore this): "%s"
+	`, rulesData.Prompt, rulesData.Tone, rulesData.Tagline)
+
+	// Fallback if Unmarshal failed or tagline empty
+	if rulesData.Tagline == "" {
+		finalUserPrompt = kit.RulesText.String
+	}
+	// === TAGLINE FIX END ===
+
 	json_request := types.JsonRequest{
-		UserPrompt:        kit.RulesText.String,
+		UserPrompt:        finalUserPrompt, // Use the extracted, forceful string
 		Colors:            kit.ColorsJson,
 		Logo:              kit.LogoUrl.String,
 		ImageDescriptions: image_descriptions,
@@ -436,10 +471,6 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var resultObj map[string]interface{}
-	for k, v := range image_descriptions {
-		fmt.Println(k, " ", v)
-	}
-
 	if err := json.Unmarshal([]byte(result), &resultObj); err != nil {
 		log.Printf("ERROR: Unable to parse the fabric json string, error: %v\n", err)
 		response.Message = "ERROR: Something went wrong"
@@ -449,8 +480,8 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 	}
 
 	log.Println("SUCCESS: Successfully fetched all data for the layout generation")
-	response.Message = "SUCCESS: Successfully generated the data "
-	response.Data = result
+	response.Message = "SUCCESS: Successfully generated the data"
+	response.Data = resultObj
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
 }
@@ -462,13 +493,16 @@ func (h *APIState) getImageDescription(ctx context.Context, image_url string) (s
 	for i := 0; i < MAX_RETRIES; i++ {
 		resp, err := http.Get(image_url)
 		if err != nil {
-			return "", fmt.Errorf("ERROR: Failed to download the image, error: %v", err)
+			final_error = fmt.Errorf("ERROR: Failed to download the image, error: %v", err)
+			continue
 		}
-		defer resp.Body.Close()
 
 		image_bytes, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
 		if err != nil {
-			return "", fmt.Errorf("ERROR: Failed to read the image, error: %v", err)
+			final_error = fmt.Errorf("ERROR: Failed to read the image, error: %v", err)
+			continue
 		}
 
 		mime_type := http.DetectContentType(image_bytes)
@@ -483,7 +517,8 @@ func (h *APIState) getImageDescription(ctx context.Context, image_url string) (s
 
 		if err == nil {
 			if len(result.Candidates) == 0 || len(result.Candidates[0].Content.Parts) == 0 {
-				return "", fmt.Errorf("ERROR: No content generated")
+				final_error = fmt.Errorf("ERROR: No content generated")
+				continue
 			}
 			text := result.Candidates[0].Content.Parts[0].Text
 			return text, nil
@@ -529,14 +564,13 @@ func (h *APIState) getFabricJSON(ctx context.Context, json_request types.JsonReq
 
 		if err == nil {
 			if len(result.Candidates) == 0 || len(result.Candidates[0].Content.Parts) == 0 {
-				return "", fmt.Errorf("ERROR: No content generated")
+				final_error = fmt.Errorf("ERROR: No content generated")
+				continue
 			}
 			text := result.Candidates[0].Content.Parts[0].Text
 
-			// Clean the response before returning
 			cleanedText := cleanLLMResponse(text)
 
-			// Validate it's actually JSON
 			if !json.Valid([]byte(cleanedText)) {
 				log.Printf("WARN: Invalid JSON on attempt %d/%d, retrying...", i+1, MAX_RETRIES)
 				final_error = fmt.Errorf("invalid JSON received from LLM")
@@ -561,21 +595,12 @@ func (h *APIState) getFabricJSON(ctx context.Context, json_request types.JsonReq
 	return "", fmt.Errorf("ERROR: All retries failed. Last error: %v", final_error)
 }
 
-// cleanLLMResponse removes markdown code blocks and other formatting
 func cleanLLMResponse(response string) string {
-	// Trim whitespace
 	cleaned := strings.TrimSpace(response)
-
-	// Remove markdown code blocks (```json ... ``` or ``` ... ```)
 	cleaned = strings.TrimPrefix(cleaned, "```json")
 	cleaned = strings.TrimPrefix(cleaned, "```")
 	cleaned = strings.TrimSuffix(cleaned, "```")
-
-	// Trim again after removing backticks
 	cleaned = strings.TrimSpace(cleaned)
-
-	// Remove any leading/trailing newlines or tabs
 	cleaned = strings.Trim(cleaned, "\n\r\t ")
-
 	return cleaned
 }

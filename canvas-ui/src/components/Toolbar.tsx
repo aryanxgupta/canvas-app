@@ -465,6 +465,7 @@ export const Toolbar = () => {
       }
 
       // IMAGE (Using correct v5 syntax)
+
       if (item.type === 'image' && item.url) {
         return new Promise<void>((resolve) => {
            fabric.Image.fromURL(item.url!, (img) => {
@@ -479,9 +480,32 @@ export const Toolbar = () => {
               
               if (item.width) img.scaleToWidth(item.width);
               
+              // --- SHADOW FIX ---
               if (item.shadow) {
                 // @ts-ignore
                 img.set('shadow', new fabric.Shadow({ ...item.shadow }));
+              }
+
+              // --- FILTERS FIX (New Code) ---
+              // Check if the AI provided filters (custom property we will add to types)
+              // @ts-ignore
+              if (item.filters && Array.isArray(item.filters)) {
+                  const newFilters: fabric.IBaseFilter[] = [];
+                  
+                  // @ts-ignore
+                  item.elements?.forEach((f: any) => {
+                      if (f.type === 'Blur') newFilters.push(new fabric.Image.filters.Blur({ blur: f.blur }));
+                      if (f.type === 'Brightness') newFilters.push(new fabric.Image.filters.Brightness({ brightness: f.brightness }));
+                      if (f.type === 'Contrast') newFilters.push(new fabric.Image.filters.Contrast({ contrast: f.contrast }));
+                  });
+                  
+                  // Also check our own explicit properties if we add them to the AI schema later
+                  // (e.g., if item has 'blur': 0.5 directly)
+                  // @ts-ignore
+                  if (item.blur) newFilters.push(new fabric.Image.filters.Blur({ blur: item.blur }));
+                  
+                  img.filters = newFilters;
+                  img.applyFilters();
               }
 
               canvas.add(img);
@@ -489,6 +513,7 @@ export const Toolbar = () => {
            }, { crossOrigin: 'anonymous' });
         });
       }
+      
     });
 
     await Promise.all(renderPromises);

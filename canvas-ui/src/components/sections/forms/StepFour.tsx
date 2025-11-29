@@ -1,7 +1,7 @@
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useBrandKitStore } from "../../../store/useBrandKitStore";
 import { useState } from "react";
-import { useEditorStore, type AIResponse } from "@/store/editorStore";
+import { useEditorStore, type AIResponse } from "@/store/editorStore"; // Ensure this path matches your project aliases
 import { useLocation } from "wouter";
 
 interface StepFourProps {
@@ -106,11 +106,15 @@ export default function StepFour({ onBack }: StepFourProps) {
       const layoutJson = await layoutRes.json();
       if (!layoutRes.ok) throw new Error(layoutJson.message);
 
-      const AiDesignObj: AIResponse = JSON.parse(layoutJson.data);
+      // === THE FIX IS HERE ===
+      // Backend now returns an object, so no need to JSON.parse()
+      const AiDesignObj: AIResponse = layoutJson.data; 
+      
       setAiDesign(AiDesignObj);
       setLocation("/canvas");
 
     } catch (err: any) {
+      console.error(err);
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);

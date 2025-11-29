@@ -35,6 +35,9 @@ export interface AIElement {
   filters?: { blur?: number; brightness?: number; contrast?: number };
   stroke?: string;
   strokeWidth?: number;
+  blur?: number;        // simple 0-1
+  brightness?: number;  // simple -1 to 1
+  contrast?: number;    // simple -1 to 1
 }
 
 export interface LayoutConfig {

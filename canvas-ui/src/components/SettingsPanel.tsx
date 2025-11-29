@@ -184,25 +184,46 @@ export const SettingsPanel = () => {
   };
 
   const applyFilterValue = (type: 'blur' | 'brightness' | 'contrast', value: number) => { 
-    if (selectedObject && canvas && selectedObject.type === 'image') { 
-        const img = selectedObject as fabric.Image; 
-        if (type === 'blur') setBlur(value); 
-        if (type === 'brightness') setBrightness(value); 
-        if (type === 'contrast') setContrast(value); 
-        
-        const newFilters = []; 
-        const currentBlur = type === 'blur' ? value : blur; 
-        const currentBright = type === 'brightness' ? value : brightness; 
-        const currentContrast = type === 'contrast' ? value : contrast; 
-        
-        if (currentBlur > 0) newFilters.push(new fabric.filters.Blur({ blur: currentBlur })); 
-        if (currentBright !== 0) newFilters.push(new fabric.filters.Brightness({ brightness: currentBright })); 
-        if (currentContrast !== 0) newFilters.push(new fabric.filters.Contrast({ contrast: currentContrast })); 
-        
-        img.filters = newFilters; 
-        img.applyFilters(); 
-        canvas.requestRenderAll(); 
-    } 
+    if (!selectedObject || !canvas || selectedObject.type !== 'image') return;
+    
+    const img = selectedObject as fabric.Image; 
+
+    // Update local state
+    if (type === 'blur') setBlur(value); 
+    if (type === 'brightness') setBrightness(value); 
+    if (type === 'contrast') setContrast(value); 
+    
+    // 1. Define the current values (using the new value for the type being changed)
+    const currentBlur = type === 'blur' ? value : blur;
+    const currentBright = type === 'brightness' ? value : brightness;
+    const currentContrast = type === 'contrast' ? value : contrast;
+    
+    // 2. Clear existing filters
+    img.filters = [];
+
+    // 3. Re-add filters if values are not default
+    // Note: Fabric v5 uses 'fabric.Image.filters', NOT 'fabric.filters'
+    if (currentBlur > 0) {
+        img.filters.push(new fabric.Image.filters.Blur({ 
+            blur: currentBlur 
+        }));
+    }
+
+    if (currentBright !== 0) {
+        img.filters.push(new fabric.Image.filters.Brightness({ 
+            brightness: currentBright 
+        }));
+    }
+
+    if (currentContrast !== 0) {
+        img.filters.push(new fabric.Image.filters.Contrast({ 
+            contrast: currentContrast 
+        }));
+    }
+
+    // 4. CRITICAL: Apply and Render
+    img.applyFilters(); 
+    canvas.requestRenderAll();
   };
 
   const toggleShadow = (e: React.ChangeEvent<HTMLInputElement>) => { 
