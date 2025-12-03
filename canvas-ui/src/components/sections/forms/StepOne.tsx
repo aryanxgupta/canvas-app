@@ -17,12 +17,10 @@ export default function StepOne({ onNext }: StepOneProps) {
   const {
     brandName,
     brandCategory,
-    brandTagline,
     colorsJson,
     logoFile,
     setBrandName,
     setBrandCategory,
-    setBrandTagline,
     setColorsJson,
     setLogoFile,
   } = useBrandKitStore();
@@ -155,6 +153,7 @@ export default function StepOne({ onNext }: StepOneProps) {
           )}
         </div>
       </div>
+
 
       <button
         onClick={onNext}
