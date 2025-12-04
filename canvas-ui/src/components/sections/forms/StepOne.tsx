@@ -47,7 +47,7 @@ export default function StepOne({ onNext }: StepOneProps) {
         {/* BRAND NAME */}
         <div className="flex flex-col gap-2">
           <label className="block text-sm font-sub-heading text-gray-300">
-            Brand Name
+            * Brand Name
           </label>
           <input
             type="text"
@@ -61,7 +61,7 @@ export default function StepOne({ onNext }: StepOneProps) {
         {/* BRAND CATEGORY */}
         <div className="flex flex-col gap-2">
           <label className="block text-sm font-sub-heading text-gray-300">
-            Brand Category (optional)
+            Brand Category 
           </label>
           <select
             value={selectValue}
@@ -101,7 +101,7 @@ export default function StepOne({ onNext }: StepOneProps) {
         {/* COLOR THEME PICKER */}
         <div className="flex flex-col gap-3">
           <label className="block text-sm font-sub-heading text-gray-300">
-            Brand Color Theme (optional)
+            Brand Color Theme 
           </label>
 
           <div className="flex items-center gap-6">
@@ -157,7 +157,8 @@ export default function StepOne({ onNext }: StepOneProps) {
 
       <button
         onClick={onNext}
-        className="mt-auto mb-2 px-6 py-3 rounded-xl bg-violet-300 text-black font-bold hover:bg-violet-400 active:scale-95 transition shrink-0 cursor-pointer"
+        className="mt-auto mb-2 px-6 py-3 rounded-xl bg-violet-300 text-black font-bold hover:bg-violet-400 active:scale-95 transition shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={!brandName || !logoFile }
       >
         Continue →
       </button>

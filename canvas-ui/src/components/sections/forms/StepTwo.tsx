@@ -38,7 +38,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
   return (
     <div className="flex flex-col h-full max-h-[80vh] text-white custom-scrollbar">
       <h3 className="text-3xl font-bold-heading mb-8 shrink-0">
-        Campaign Copy & Assets (Required)
+        Campaign Copy & Assets
       </h3>
 
       <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-10 custom-scrollbar">
@@ -46,7 +46,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
           {/* HEADLINE (Mandatory, Appendix A) */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-sub-heading text-gray-300">
-              Headline (Required on all banners)
+              * Headline 
             </label>
             <input
               type="text"
@@ -61,7 +61,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
           {/* SUBHEAD (Mandatory, Appendix A) */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-sub-heading text-gray-300">
-              Subhead (Required on all banners)
+              * Subhead 
             </label>
             <input
               type="text"
@@ -88,8 +88,8 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
                     onChange={(e) => setIsAlcoholPromotion(e.target.checked)}
                     className="mt-1 w-4 h-4 text-violet-400 bg-[#111] border-white/20 rounded focus:ring-violet-400"
                 />
-                <label htmlFor="alcohol-promo" className="text-sm text-gray-300 cursor-pointer">
-                    This campaign promotes **Alcohol**. (Mandatory Drinkaware caveat will be applied)
+                <label htmlFor="alcohol-promo" className="text-sm text-gray-300 cursor-pointer font-light-heading tracking-wide ">
+                    This campaign promotes <span className="font-bold-heading tracking-wide">Alcohol (Mandatory Drinkaware caveat will be applied)</span>. 
                 </label>
             </div>
 
@@ -102,8 +102,8 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
                     onChange={(e) => setIsExclusiveProduct(e.target.checked)}
                     className="mt-1 w-4 h-4 text-violet-400 bg-[#111] border-white/20 rounded focus:ring-violet-400"
                 />
-                <label htmlFor="exclusive-product" className="text-sm text-gray-300 cursor-pointer">
-                    This product is **Exclusive to Tesco**. (Influences Tesco Tag)
+                <label htmlFor="exclusive-product" className="text-sm text-gray-300 cursor-pointer font-light-heading tracking-wide">
+                    This product is <span className="font-bold-heading tracking-wide">Exclusive to Tesco. (Influences Tesco Tag)</span> 
                 </label>
             </div>
           </div>
@@ -154,14 +154,15 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
           {/* WARNING: Photography of People (Appendix B) */}
           <div className="flex items-start gap-3 mt-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-xl">
              <input
+                required
                 id="photo-people-confirm"
                 type="checkbox"
                 checked={hasPhotographyOfPeople}
                 onChange={(e) => setHasPhotographyOfPeople(e.target.checked)}
                 className="mt-1 w-4 h-4 text-yellow-400 bg-[#111] border-white/20 rounded focus:ring-yellow-400"
             />
-            <label htmlFor="photo-people-confirm" className="text-sm text-gray-100 cursor-pointer">
-                **Image Warning:** I confirm that any photography of people in the uploaded images is **integral to the campaign** (Appendix B).
+            <label htmlFor="photo-people-confirm" className="text-sm font-light-heading tracking-wide text-gray-100 cursor-pointer">
+                <span className="font-bold-heading tracking-wide">Image Warning:</span> I confirm that any photography of people in the uploaded images (If any) is <span className="font-bold-heading tracking-wide">integral to the campaign</span>.
             </label>
           </div>
         </div>
@@ -178,7 +179,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
         <button
           onClick={onNext}
           // WHY: Headline, Subhead, and at least one image are mandatory for any banner (Appendix A)
-          disabled={!headline || !subhead || productImages.length === 0} 
+          disabled={!headline || !subhead || productImages.length === 0 || !hasPhotographyOfPeople} 
           className="px-6 py-3 rounded-xl bg-violet-300 text-black font-bold hover:bg-violet-400 active:scale-95 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Continue →

@@ -72,6 +72,15 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
     setTescoTag(e.target.value as any);
   };
 
+  const handleClubcardDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let v = e.target.value.replace(/\D/g, "");
+    if (v.length > 4) v = v.slice(0, 4); 
+    if (v.length >= 3) {
+      v = v.slice(0, 2) + "/" + v.slice(2);
+    }
+    setClubcardEndDate(v);
+  }
+
   return (
     <div className="flex flex-col h-full max-h-[80vh] text-white custom-scrollbar">
       <h3 className="text-3xl font-bold-heading mb-8 shrink-0">
@@ -175,6 +184,7 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
           <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-300">White Tile Price</label>
             <input
+              type="number"
               value={whitePrice}
               onChange={(e) => setWhitePrice(e.target.value)}
               placeholder="e.g. £3.50"
@@ -188,6 +198,8 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
             <div className="flex flex-col gap-2">
               <label className="text-sm text-gray-300">Clubcard Offer Price</label>
               <input
+                required
+                type="number"
                 value={clubcardOfferPrice}
                 onChange={(e) => setClubcardOfferPrice(e.target.value)}
                 placeholder="e.g. £2.00"
@@ -198,6 +210,8 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
             <div className="flex flex-col gap-2">
               <label className="text-sm text-gray-300">Clubcard Regular Price</label>
               <input
+                required
+                type="number"
                 value={clubcardRegularPrice}
                 onChange={(e) => setClubcardRegularPrice(e.target.value)}
                 placeholder="e.g. £3.00"
@@ -206,10 +220,10 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm text-gray-300">Clubcard End Date (DD/MM/YYYY)</label>
+              <label className="text-sm text-gray-300">Clubcard End Date (DD/MM)</label>
               <input
                 value={clubcardEndDate}
-                onChange={(e) => setClubcardEndDate(e.target.value)}
+                onChange={handleClubcardDateChange}
                 placeholder="e.g. 23/06"
                 className="px-4 py-3 bg-[#111] border border-white/20 rounded-xl text-white"
               />
@@ -256,7 +270,8 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
         <button
           onClick={onNext}
           className="px-6 py-3 bg-violet-300 text-black font-bold 
-                     rounded-xl hover:bg-violet-400 flex items-center gap-2"
+                     rounded-xl hover:bg-violet-400 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={(valueTileType=='clubcard' && (!clubcardOfferPrice || !clubcardEndDate || !clubcardRegularPrice)) || (valueTileType=='white' && !whitePrice)}
         >
           Next <ArrowRightIcon size={16} />
         </button>
