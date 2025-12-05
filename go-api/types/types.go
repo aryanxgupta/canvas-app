@@ -58,3 +58,32 @@ type JsonRequest struct {
 	ImageDescriptions map[string]string
 	ImageURLs         []string
 }
+
+type ComplianceInfo struct {
+	Headline           string         `json:"headline"`
+	Subhead            string         `json:"subhead"`
+	CreativeMode       string         `json:"creative_mode"`
+	Format             string         `json:"format"`
+	ValueTile          *ValueTileInfo `json:"value_tile"`
+	IsAlcoholPromotion bool           `json:"is_alcohol_promotion"`
+	HasPeople          bool           `json:"has_people"`
+	IsExclusive        bool           `json:"is_exclusive_product"`
+	TescoFinalTag      string         `json:"tesco_final_tag"`
+}
+
+type ValueTileInfo struct {
+	Type         string `json:"type"` // "clubcard", "white", "new"
+	WhitePrice   string `json:"white_price"`
+	OfferPrice   string `json:"offer_price"`
+	RegularPrice string `json:"regular_price"`
+	EndDate      string `json:"end_date"`
+}
+
+type RulesData struct {
+	Prompt     string         `json:"prompt"`
+	Tone       string         `json:"tone"`
+	Style      string         `json:"style"`
+	Tagline    string         `json:"tagline"`
+	Compliance ComplianceInfo `json:"compliance"`
+	TescoRules string         `json:"tesco_rules"`
+}

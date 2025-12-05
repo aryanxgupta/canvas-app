@@ -162,7 +162,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
                 className="mt-1 w-4 h-4 text-yellow-400 bg-[#111] border-white/20 rounded focus:ring-yellow-400"
             />
             <label htmlFor="photo-people-confirm" className="text-sm font-light-heading tracking-wide text-gray-100 cursor-pointer">
-                <span className="font-bold-heading tracking-wide">Image Warning:</span> I confirm that any photography of people in the uploaded images (If any) is <span className="font-bold-heading tracking-wide">integral to the campaign</span>.
+                <span className="font-bold-heading tracking-wide">Image Warning:</span> I confirm that any photography of people in the uploaded images is <span className="font-bold-heading tracking-wide">integral to the campaign</span>.
             </label>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
         <button
           onClick={onNext}
           // WHY: Headline, Subhead, and at least one image are mandatory for any banner (Appendix A)
-          disabled={!headline || !subhead || productImages.length === 0 || !hasPhotographyOfPeople} 
+          disabled={!headline || !subhead || productImages.length === 0} 
           className="px-6 py-3 rounded-xl bg-violet-300 text-black font-bold hover:bg-violet-400 active:scale-95 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Continue →

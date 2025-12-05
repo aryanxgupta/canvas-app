@@ -432,26 +432,58 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 
 	// === TAGLINE FIX START ===
 	// Extract the tagline from the raw JSON rules string
-	var rulesData struct {
-		Tagline string `json:"tagline"`
-		Prompt  string `json:"prompt"`
-		Tone    string `json:"tone"`
-	}
+	var rules types.RulesData
+
 	// Attempt to unmarshal. If it fails, we fall back to raw string.
-	_ = json.Unmarshal([]byte(kit.RulesText.String), &rulesData)
+	err = json.Unmarshal([]byte(kit.RulesText.String), &rules)
+	if err != nil {
+		log.Printf("WARN: Failed to parse detailed rules JSON, falling back to raw string. Error: %v", err)
+		rules.Prompt = kit.RulesText.String
+	}
+
+	var mandates strings.Builder
+
+	mandates.WriteString(fmt.Sprintf("DESIGN TONE: %s. STYLE: %s.\n", rules.Tone, rules.Style))
+
+	// HEADLINES (Must use specific text provided)
+	if rules.Compliance.Headline != "" {
+		mandates.WriteString(fmt.Sprintf("MANDATORY HEADLINE: \"%s\"\n", rules.Compliance.Headline))
+	}
+	if rules.Compliance.Subhead != "" {
+		mandates.WriteString(fmt.Sprintf("MANDATORY SUBHEAD: \"%s\"\n", rules.Compliance.Subhead))
+	}
+
+	// ALCOHOL (Hard Fail Rule)
+	if rules.Compliance.IsAlcoholPromotion {
+		mandates.WriteString("MANDATORY: Include 'Drinkaware.co.uk' logo or text in black or white. High contrast required.\n")
+	}
+
+	// TESCO TAGS (Footer)
+	if rules.Compliance.TescoFinalTag != "" {
+		mandates.WriteString(fmt.Sprintf("MANDATORY FOOTER TAG: \"%s\" (Place at bottom).\n", rules.Compliance.TescoFinalTag))
+	}
+
+	// VALUE TILES (The complex part)
+	if rules.Compliance.ValueTile != nil {
+		vt := rules.Compliance.ValueTile
+		if vt.Type == "clubcard" {
+			mandates.WriteString(fmt.Sprintf("DRAW A YELLOW CLUBCARD PRICE TILE. Large Price: %s. Small Regular Price: %s. Date: %s.\n", vt.OfferPrice, vt.RegularPrice, vt.EndDate))
+		} else if vt.Type == "white" {
+			mandates.WriteString(fmt.Sprintf("DRAW A WHITE VALUE TILE. Price: %s.\n", vt.WhitePrice))
+		} else if vt.Type == "new" {
+			mandates.WriteString("DRAW A 'NEW' BADGE TILE.\n")
+		}
+	} else {
+		// Fallback if no tile data but user asked for it
+		mandates.WriteString("No specific pricing tile required.\n")
+	}
 
 	// Construct a forceful prompt for the LLM
 	finalUserPrompt := fmt.Sprintf(`
 	DESIGN CONTEXT: %s
 	BRAND TONE: %s
 	MANDATORY TAGLINE TO INCLUDE (Do not ignore this): "%s"
-	`, rulesData.Prompt, rulesData.Tone, rulesData.Tagline)
-
-	// Fallback if Unmarshal failed or tagline empty
-	if rulesData.Tagline == "" {
-		finalUserPrompt = kit.RulesText.String
-	}
-	// === TAGLINE FIX END ===
+	`, rules.Prompt, mandates.String())
 
 	json_request := types.JsonRequest{
 		UserPrompt:        finalUserPrompt, // Use the extracted, forceful string
