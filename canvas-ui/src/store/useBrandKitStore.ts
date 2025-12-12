@@ -68,6 +68,7 @@ interface BrandKitState {
   setBrandName: (v: string) => void;
   setLogoFile: (f: File | null) => void;
   addProductImages: (files: File[]) => void;
+  removeProductImage: (index: number) => void; 
   setColorsJson: (obj: Record<string, string>) => void;
 
   setRulesText: (v: string) => void;
@@ -161,6 +162,11 @@ export const useBrandKitStore = create<BrandKitState>((set) => ({
     set((state) => ({
       productImages: [...state.productImages, ...files].slice(0, 3),
     })),
+
+  removeProductImage: (index: number) => 
+    set((state) => ({
+      productImages: state.productImages.filter((_, i) => i !== index)
+    })), 
 
   setColorsJson: (obj) => set({ colorsJson: obj }),
 

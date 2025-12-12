@@ -90,7 +90,7 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
       <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-8 custom-scrollbar">
 
         {/* CREATIVE PROMPT */}
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-300">Creative Prompt</label>
           <textarea
             value={prompt}
@@ -99,13 +99,13 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
             className="w-full min-h-[120px] bg-[#111] border border-white/20 
                        text-white placeholder-white/40 rounded-xl p-4"
           />
-        </div>
+        </div> */}
 
         {/* FORMAT • TONE • STYLE */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
           {/* FORMAT */}
-          <div className="flex flex-col gap-2">
+          {/* <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-300">Format</label>
             <select
               value={format}
@@ -116,7 +116,7 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
               <option value="story">Story (1080×1920)</option>
               <option value="landscape">Landscape (1200×628)</option>
             </select>
-          </div>
+          </div> */}
 
           {/* TONE */}
           <div className="flex flex-col gap-2">
@@ -168,9 +168,10 @@ export default function StepThree({ onNext, onBack }: StepThreeProps) {
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-300">Value Tile</label>
           <select
+            disabled={creativeMode == 'lep'}
             value={valueTileType}
             onChange={(e) => setValueTileType(e.target.value as any)}
-            className="px-4 py-3 bg-[#111] border border-white/20 rounded-xl text-white"
+            className="px-4 py-3 bg-[#111] border border-white/20 rounded-xl text-white disabled:cursor-not-allowed disabled:bg-[#333]"
           >
             <option value="none">None</option>
             <option value="new">New</option>

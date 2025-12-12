@@ -12,7 +12,8 @@ import {
   Palette,
   Type,
   Image as ImageIcon,
-  Sun
+  Sun,
+  Square // Added icon for shape settings
 } from 'lucide-react';
 
 // --- CONSTANTS ---
@@ -42,6 +43,9 @@ export const SettingsPanel = () => {
   const [charSpacing, setCharSpacing] = useState<number>(0);
   const [textContent, setTextContent] = useState<string>('');
   const [fontFamily, setFontFamily] = useState<string>('Arial');
+
+  // Rect Specific
+  const [borderRadius, setBorderRadius] = useState<number>(0); // NEW STATE
 
   // Filters
   const [blur, setBlur] = useState(0);
@@ -73,7 +77,7 @@ export const SettingsPanel = () => {
     setStrokeWidth(selectedObject.strokeWidth || 0);
     setIsLocked(selectedObject.lockMovementX || false);
     
-    // @ts-ignore - globalCompositeOperation is valid in v5 but sometimes missing in types
+    // @ts-ignore
     setBlendMode(selectedObject.globalCompositeOperation || 'normal');
 
     // 1. Sync Fill
@@ -83,7 +87,6 @@ export const SettingsPanel = () => {
         setColor('#000000');
     } else {
         setIsTransparent(false);
-        // Handle if fill is pattern or gradient (advanced), fallback to black if so
         if (typeof fill === 'string') {
              const hex = new fabric.Color(fill).toHex();
              setColor(`#${hex}`);
@@ -110,7 +113,13 @@ export const SettingsPanel = () => {
       setCharSpacing(textObj.charSpacing || 0);
     }
 
-    // 4. Filters (Image only)
+    // 4. Rect Specific (Border Radius)
+    if (selectedObject.type === 'rect') {
+        const rect = selectedObject as fabric.Rect;
+        setBorderRadius(rect.rx || 0); // Fabric uses 'rx' and 'ry' for radius
+    }
+
+    // 5. Filters (Image only)
     if (selectedObject.type === 'image') {
       const img = selectedObject as fabric.Image;
       setBlur(0); setBrightness(0); setContrast(0);
@@ -123,7 +132,7 @@ export const SettingsPanel = () => {
       }
     }
 
-    // 5. Shadow
+    // 6. Shadow
     if (selectedObject.shadow) {
       setShadowEnabled(true);
       const s = selectedObject.shadow as fabric.Shadow;
@@ -154,7 +163,6 @@ export const SettingsPanel = () => {
             coords: { x1: 0, y1: 0, x2: canvas.width || 0, y2: canvas.height || 0 },
             colorStops: [ { offset: 0, color: c1 }, { offset: 1, color: c2 } ]
         });
-        // Fabric v5 setBackgroundColor accepts Gradient objects
         canvas.setBackgroundColor(gradient as any, canvas.renderAll.bind(canvas));
     }
   };
@@ -164,10 +172,21 @@ export const SettingsPanel = () => {
       updateBackground(type, bgColor1, bgColor2);
   };
 
-  // Object Handlers (Simplified for brevity - logic remains same)
   const updateProp = (key: string, value: any) => {
       if(selectedObject && canvas) {
           selectedObject.set(key as any, value);
+          canvas.requestRenderAll();
+      }
+  };
+
+  // --- NEW HANDLER FOR BORDER RADIUS ---
+  const handleBorderRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = parseInt(e.target.value);
+      setBorderRadius(val);
+      if (selectedObject && canvas && selectedObject.type === 'rect') {
+          // For rectangles, setting rx and ry makes rounded corners
+          selectedObject.set('rx', val);
+          selectedObject.set('ry', val);
           canvas.requestRenderAll();
       }
   };
@@ -188,40 +207,26 @@ export const SettingsPanel = () => {
     
     const img = selectedObject as fabric.Image; 
 
-    // Update local state
     if (type === 'blur') setBlur(value); 
     if (type === 'brightness') setBrightness(value); 
     if (type === 'contrast') setContrast(value); 
     
-    // 1. Define the current values (using the new value for the type being changed)
     const currentBlur = type === 'blur' ? value : blur;
     const currentBright = type === 'brightness' ? value : brightness;
     const currentContrast = type === 'contrast' ? value : contrast;
     
-    // 2. Clear existing filters
     img.filters = [];
 
-    // 3. Re-add filters if values are not default
-    // Note: Fabric v5 uses 'fabric.Image.filters', NOT 'fabric.filters'
     if (currentBlur > 0) {
-        img.filters.push(new fabric.Image.filters.Blur({ 
-            blur: currentBlur 
-        }));
+        img.filters.push(new fabric.Image.filters.Blur({ blur: currentBlur }));
     }
-
     if (currentBright !== 0) {
-        img.filters.push(new fabric.Image.filters.Brightness({ 
-            brightness: currentBright 
-        }));
+        img.filters.push(new fabric.Image.filters.Brightness({ brightness: currentBright }));
     }
-
     if (currentContrast !== 0) {
-        img.filters.push(new fabric.Image.filters.Contrast({ 
-            contrast: currentContrast 
-        }));
+        img.filters.push(new fabric.Image.filters.Contrast({ contrast: currentContrast }));
     }
 
-    // 4. CRITICAL: Apply and Render
     img.applyFilters(); 
     canvas.requestRenderAll();
   };
@@ -359,6 +364,29 @@ export const SettingsPanel = () => {
                    <input type="range" min="-1" max="1" step="0.05" value={contrast} onChange={(e) => applyFilterValue('contrast', parseFloat(e.target.value))} className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" />
                </div>
            </div>
+        </div>
+      )}
+
+      {/* SECTION: RECTANGLE (BORDER RADIUS) */}
+      {type === 'rect' && (
+        <div className="mb-6 space-y-4">
+             <div className="flex items-center gap-2 text-sm font-font6 text-purple-300">
+                <Square size={14}/> Shape Settings
+             </div>
+             <div>
+                <label className="text-xs text-gray-400 block mb-1">Corner Radius (Roundness)</label>
+                <div className="flex items-center gap-2">
+                    <input 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        value={borderRadius} 
+                        onChange={handleBorderRadiusChange} 
+                        className="w-full accent-[#6366f1] h-1 bg-gray-700 rounded-lg appearance-none" 
+                    />
+                    <span className="text-xs w-8 text-right">{borderRadius}px</span>
+                </div>
+             </div>
         </div>
       )}
 

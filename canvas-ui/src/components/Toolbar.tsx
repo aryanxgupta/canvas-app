@@ -11,357 +11,494 @@ import {
 } from 'lucide-react';
 
 // --- FULL MOCK DATA ---
-const fullCampaign: AIResponse = {
-  instagram_story: {
-    width: 1080,
-    height: 1920,
-    backgroundColor: "#0f0c29",
-    backgroundGradient: {
-      type: "linear",
-      coords: { x1: 0, y1: 0, x2: 0, y2: 1920 },
-      stops: [
-        { offset: 0, color: "#24243e" },
-        { offset: 0.5, color: "#0f0c29" },
-        { offset: 1, color: "#000000" }
+export const fullCampaign: AIResponse = {
+  "instagram_story": {
+    "width": 1080,
+    "height": 1920,
+    "backgroundColor": "#ffffff",
+    "backgroundGradient": {
+      "type": "linear",
+      "coords": { "x1": 0, "y1": 0, "x2": 0, "y2": 1920 },
+      "stops": [
+        { "offset": 0, "color": "#fdfbfb" },
+        { "offset": 1, "color": "#d4fc79" }
       ]
     },
-    elements: [
+    "elements": [
+      // LOGO (Top Center - Below 250px safe zone)
       {
-        type: "rect",
-        top: 40,
-        left: 40,
-        width: 1000,
-        height: 1840,
-        fill: "transparent",
-        stroke: "rgba(0, 210, 255, 0.3)",
-        strokeWidth: 2
+        "type": "image",
+        "url": "https://via.placeholder.com/200x100?text=LOGO",
+        "top": 300,
+        "left": 540,
+        "originX": "center",
+        "originY": "center",
+        "scaleX": 1.2,
+        "scaleY": 1.2
+      },
+      // HEADLINE
+      {
+        "type": "text",
+        "content": "SUMMER SPECIAL",
+        "top": 420,
+        "left": 540,
+        "originX": "center",
+        "originY": "center",
+        "fontSize": 60,
+        "fontFamily": "Oswald",
+        "fontWeight": "bold",
+        "fill": "#333"
+      },
+      // SUBHEADLINE
+      {
+        "type": "text",
+        "content": "Refresh your senses",
+        "top": 490,
+        "left": 540,
+        "originX": "center",
+        "originY": "center",
+        "fontSize": 35,
+        "fontFamily": "Arial",
+        "fill": "#666"
+      },
+      // PRODUCT (Dynamic Scale)
+      {
+        "type": "image",
+        "url": "https://via.placeholder.com/800x800?text=Product",
+        "top": 920,
+        "left": 540,
+        "originX": "center",
+        "originY": "center",
+        "scaleX": 0.85, 
+        "scaleY": 0.85 
+      },
+      
+      // --- CLUBCARD STACK (Flattened) ---
+      // 1. Regular Price Rect (White)
+      {
+        "type": "rect",
+        "top": 1300,
+        "left": 380,
+        "width": 320,
+        "height": 60,
+        "fill": "#ffffff",
+        "stroke": "#cccccc",
+        "strokeWidth": 2,
+        "rx": 15,
+        "ry": 15
+      },
+      // 2. Regular Price Text
+      {
+        "type": "text",
+        "content": "Reg: €12.00",
+        "top": 1315,
+        "left": 450,
+        "fontSize": 32,
+        "fill": "#333",
+        "fontFamily": "Arial"
+      },
+      // 3. Promo Yellow Rect (Starts 5px below Reg)
+      // Top = 1300 + 60 + 5 = 1365
+      {
+        "type": "rect",
+        "top": 1365,
+        "left": 380,
+        "width": 320,
+        "height": 120,
+        "fill": "#FFD700",
+        "rx": 15,
+        "ry": 15
+      },
+      // 4. Promo Price Text
+      {
+        "type": "text",
+        "content": "€9.00",
+        "top": 1385,
+        "left": 450,
+        "fontSize": 75,
+        "fontWeight": "bold",
+        "fill": "black",
+        "fontFamily": "Arial"
+      },
+      // 5. Blue Clubcard Label (Rounded, Inside Yellow)
+      // Placed near bottom of yellow rect
+      {
+        "type": "rect",
+        "top": 1450,
+        "left": 400,
+        "width": 280,
+        "height": 30,
+        "fill": "#00539F",
+        "rx": 15,
+        "ry": 15
+      },
+      // 6. Clubcard Label Text
+      {
+        "type": "text",
+        "content": "Clubcard Price",
+        "top": 1455,
+        "left": 475,
+        "fontSize": 18,
+        "fontWeight": "bold",
+        "fill": "white",
+        "fontFamily": "Arial"
+      },
+
+      // --- LEGAL PILL (Separate - Flattened) ---
+      // Must be below stack with margin. Stack ends at 1365 + 120 = 1485.
+      // Pill Top = 1485 + 30px margin = 1515
+      {
+        "type": "rect",
+        "top": 1515,
+        "left": 370,
+        "width": 340,
+        "height": 40,
+        "fill": "#00539F",
+        "rx": 20,
+        "ry": 20
       },
       {
-        type: "circle",
-        top: 400,
-        left: 100,
-        radius: 300,
-        fill: "rgba(0, 210, 255, 0.05)"
+        "type": "text",
+        "content": "Clubcard/app required. Ends: 24/08",
+        "top": 1523,
+        "left": 395,
+        "fontSize": 16,
+        "fill": "white",
+        "fontFamily": "Arial"
       },
+
+      // DRINKAWARE (Bottom Right - Above 250px safe zone)
       {
-        type: "rect",
-        top: 200,
-        left: 540,
-        originX: "center",
-        width: 2,
-        height: 100,
-        fill: "#00d2ff"
-      },
-      {
-        type: "text",
-        content: "PURE",
-        top: 320,
-        left: 540,
-        originX: "center",
-        fontSize: 70,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#ffffff",
-        charSpacing: 200
-      },
-      {
-        type: "text",
-        content: "AUDIO",
-        top: 400,
-        left: 540,
-        originX: "center",
-        fontSize: 70,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#00d2ff",
-        charSpacing: 200
-      },
-      {
-        type: "text",
-        content: "SILENCE",
-        top: 600,
-        left: 540,
-        originX: "center",
-        fontSize: 70,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#ffffff",
-        opacity: 0.05,
-        scaleX: 2,
-        scaleY: 2
-      },
-      {
-        type: "image",
-        url: "https://placehold.co/600x600/png",
-        top: 960,
-        left: 540,
-        originX: "center",
-        originY: "center",
-        width: 900,
-        angle: -10,
-        shadow: { color: "rgba(0, 210, 255, 0.4)", blur: 80, offsetY: 40 }
-      },
-      {
-        type: "rect",
-        top: 1400,
-        left: 200,
-        width: 50,
-        height: 4,
-        fill: "#00d2ff"
-      },
-      {
-        type: "text",
-        content: "NOISE CANCELLING",
-        top: 1420,
-        left: 200,
-        fontSize: 30,
-        fontFamily: "Oswald",
-        color: "#ffffff"
-      },
-      {
-        type: "rect",
-        top: 1650,
-        left: 540,
-        originX: "center",
-        width: 500,
-        height: 80,
-        fill: "transparent",
-        stroke: "#00d2ff",
-        strokeWidth: 2,
-        rx: 40,
-        ry: 40
-      },
-      {
-        type: "text",
-        content: "PRE-ORDER NOW",
-        top: 1672,
-        left: 540,
-        originX: "center",
-        fontSize: 30,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#ffffff"
+        "type": "image",
+        "url": "https://res.cloudinary.com/video-app-/image/upload/v1764867609/drinkaware_logo_rgb_znlbh0.png",
+        "top": 1550,
+        "left": 850,
+        "width": 150
       }
     ]
   },
-
-  instagram_post: {
-    width: 1080,
-    height: 1080,
-    backgroundColor: "#0f0c29",
-    backgroundGradient: {
-      type: "radial",
-      coords: { x1: 540, y1: 540, x2: 540, y2: 540, r1: 0, r2: 800 },
-      stops: [
-        { offset: 0, color: "#302b63" },
-        { offset: 1, color: "#0f0c29" }
+  "instagram_post": {
+    "width": 1080,
+    "height": 1080,
+    "backgroundColor": "#ffffff",
+    "backgroundGradient": {
+      "type": "linear",
+      "coords": { "x1": 0, "y1": 0, "x2": 1080, "y2": 1080 },
+      "stops": [
+        { "offset": 0, "color": "#fdfbfb" },
+        { "offset": 1, "color": "#ebedee" }
       ]
     },
-    elements: [
+    "elements": [
+      // LOGO
       {
-        type: "circle",
-        top: 540,
-        left: 540,
-        originX: "center",
-        originY: "center",
-        radius: 380,
-        fill: "transparent",
-        stroke: "#00d2ff",
-        strokeWidth: 1,
-        opacity: 0.3
+        "type": "image",
+        "url": "https://via.placeholder.com/150x80?text=LOGO",
+        "top": 40,
+        "left": 40,
+        "width": 150,
+        "originX": "left",
+        "originY": "top"
+      },
+      // EXCLUSIVE TAG
+      {
+        "type": "image",
+        "url": "https://res.cloudinary.com/video-app-/image/upload/v1764857735/exclusive-tag_hri0yi.png",
+        "top": 40,
+        "left": 880,
+        "width": 160
+      },
+      // HEADLINE
+      {
+        "type": "text",
+        "content": "SUMMER SPECIAL",
+        "top": 150,
+        "left": 540,
+        "originX": "center",
+        "originY": "center",
+        "fontSize": 70,
+        "fontFamily": "Oswald",
+        "fontWeight": "bold",
+        "fill": "#333"
+      },
+      // SUBHEADLINE
+      {
+        "type": "text",
+        "content": "Refresh your senses",
+        "top": 220,
+        "left": 540,
+        "originX": "center",
+        "originY": "center",
+        "fontSize": 35,
+        "fontFamily": "Arial",
+        "fill": "#666"
+      },
+      // PRODUCT
+      {
+        "type": "image",
+        "url": "https://via.placeholder.com/600x600?text=Product",
+        "top": 540,
+        "left": 540,
+        "originX": "center",
+        "originY": "center",
+        "scaleX": 0.8,
+        "scaleY": 0.8
+      },
+
+      // --- CLUBCARD STACK (Flattened) ---
+      // Base Top: 780, Left: 720
+      // 1. Reg Price
+      {
+        "type": "rect",
+        "top": 780,
+        "left": 720,
+        "width": 320,
+        "height": 60,
+        "fill": "#ffffff",
+        "stroke": "#cccccc",
+        "strokeWidth": 2,
+        "rx": 15,
+        "ry": 15
       },
       {
-        type: "circle",
-        top: 540,
-        left: 540,
-        originX: "center",
-        originY: "center",
-        radius: 420,
-        fill: "transparent",
-        stroke: "#ffffff",
-        strokeWidth: 1,
-        strokeDashArray: [20, 30],
-        opacity: 0.2
+        "type": "text",
+        "content": "Reg: €12.00",
+        "top": 795,
+        "left": 790,
+        "fontSize": 32,
+        "fill": "#333",
+        "fontFamily": "Arial"
+      },
+      // 2. Promo Price (Top + 60 + 5px Gap = 845)
+      {
+        "type": "rect",
+        "top": 845,
+        "left": 720,
+        "width": 320,
+        "height": 120,
+        "fill": "#FFD700",
+        "rx": 15,
+        "ry": 15
       },
       {
-        type: "text",
-        content: "AETHER",
-        top: 100,
-        left: 540,
-        originX: "center",
-        fontSize: 70,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#ffffff",
-        charSpacing: 150
+        "type": "text",
+        "content": "€9.00",
+        "top": 865,
+        "left": 790,
+        "fontSize": 75,
+        "fontWeight": "bold",
+        "fill": "black",
+        "fontFamily": "Arial"
+      },
+      // 3. Blue Rounded Label (Inside Yellow)
+      {
+        "type": "rect",
+        "top": 930,
+        "left": 740,
+        "width": 280,
+        "height": 30,
+        "fill": "#00539F",
+        "rx": 15,
+        "ry": 15
       },
       {
-        type: "rect",
-        top: 190,
-        left: 540,
-        originX: "center",
-        width: 60,
-        height: 4,
-        fill: "#00d2ff"
+        "type": "text",
+        "content": "Clubcard Price",
+        "top": 935,
+        "left": 815,
+        "fontSize": 18,
+        "fontWeight": "bold",
+        "fill": "white",
+        "fontFamily": "Arial"
+      },
+
+      // --- LEGAL PILL (Flattened) ---
+      // Base Top: 1000, Left: Center
+      {
+        "type": "rect",
+        "top": 1000,
+        "left": 370,
+        "width": 340,
+        "height": 40,
+        "fill": "#00539F",
+        "rx": 20,
+        "ry": 20
       },
       {
-        type: "text",
-        content: "STUDIO",
-        top: 480,
-        left: 540,
-        originX: "center",
-        originY: "center",
-        fontSize: 70,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#ffffff",
-        opacity: 0.1,
-        scaleX: 3,
-        scaleY: 3
+        "type": "text",
+        "content": "Clubcard/app required. Ends: 24/08",
+        "top": 1008,
+        "left": 395,
+        "fontSize": 16,
+        "fill": "white",
+        "fontFamily": "Arial"
       },
+
+      // DRINKAWARE
       {
-        type: "image",
-        url: "https://placehold.co/600x600/png",
-        top: 540,
-        left: 540,
-        originX: "center",
-        originY: "center",
-        width: 600,
-        angle: 5,
-        shadow: { color: "rgba(0, 0, 0, 0.6)", blur: 50, offsetY: 30 }
-      },
-      {
-        type: "rect",
-        top: 880,
-        left: 540,
-        originX: "center",
-        width: 300,
-        height: 70,
-        fill: "#ffffff",
-        shadow: { color: "rgba(0, 210, 255, 0.4)", blur: 20 }
-      },
-      {
-        type: "text",
-        content: "BUY NOW",
-        top: 895,
-        left: 540,
-        originX: "center",
-        fontSize: 30,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#0f0c29"
+        "type": "image",
+        "url": "https://res.cloudinary.com/video-app-/image/upload/v1764867609/drinkaware_logo_rgb_znlbh0.png",
+        "top": 980,
+        "left": 40,
+        "width": 150
       }
     ]
   },
-
-  facebook_ad: {
-    width: 1200,
-    height: 628,
-    backgroundColor: "#0f0c29",
-    backgroundGradient: {
-      type: "linear",
-      coords: { x1: 0, y1: 0, x2: 1200, y2: 0 },
-      stops: [
-        { offset: 0, color: "#0f0c29" },
-        { offset: 1, color: "#24243e" }
+  "facebook_ad": {
+    "width": 1200,
+    "height": 628,
+    "backgroundColor": "#ffffff",
+    "backgroundGradient": {
+      "type": "linear",
+      "coords": { "x1": 0, "y1": 0, "x2": 1200, "y2": 0 },
+      "stops": [
+        { "offset": 0, "color": "#fdfbfb" },
+        { "offset": 1, "color": "#d4fc79" }
       ]
     },
-    elements: [
+    "elements": [
+      // LOGO
       {
-        type: "rect",
-        top: 0,
-        left: 700,
-        width: 500,
-        height: 700,
-        fill: "#00d2ff",
-        opacity: 0.05,
-        angle: 20
+        "type": "image",
+        "url": "https://via.placeholder.com/150x80?text=LOGO",
+        "top": 30,
+        "left": 30,
+        "width": 120
+      },
+      // HEADLINE
+      {
+        "type": "text",
+        "content": "SUMMER SPECIAL",
+        "top": 130,
+        "left": 30,
+        "fontSize": 50,
+        "fontFamily": "Oswald",
+        "fontWeight": "bold",
+        "fill": "#333"
+      },
+      // SUBHEADLINE
+      {
+        "type": "text",
+        "content": "Refresh your senses",
+        "top": 190,
+        "left": 30,
+        "fontSize": 30,
+        "fontFamily": "Arial",
+        "fill": "#666"
+      },
+
+      // --- CLUBCARD STACK (Flattened) ---
+      // Base Top: 280, Left: 30
+      // 1. Reg Price
+      {
+        "type": "rect",
+        "top": 280,
+        "left": 30,
+        "width": 320,
+        "height": 60,
+        "fill": "#ffffff",
+        "stroke": "#cccccc",
+        "strokeWidth": 2,
+        "rx": 15,
+        "ry": 15
       },
       {
-        type: "rect",
-        top: 30,
-        left: 30,
-        width: 1140,
-        height: 568,
-        fill: "transparent",
-        stroke: "#ffffff",
-        strokeWidth: 2,
-        opacity: 0.2
+        "type": "text",
+        "content": "Reg: €12.00",
+        "top": 295,
+        "left": 100,
+        "fontSize": 32,
+        "fill": "#333",
+        "fontFamily": "Arial"
+      },
+      // 2. Promo Price (Top + 60 + 5px Gap = 345)
+      {
+        "type": "rect",
+        "top": 345,
+        "left": 30,
+        "width": 320,
+        "height": 120,
+        "fill": "#FFD700",
+        "rx": 15,
+        "ry": 15
       },
       {
-        type: "text",
-        content: "WIRELESS",
-        top: 160,
-        left: 80,
-        fontSize: 70,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#ffffff"
+        "type": "text",
+        "content": "€9.00",
+        "top": 365,
+        "left": 100,
+        "fontSize": 75,
+        "fontWeight": "bold",
+        "fill": "black",
+        "fontFamily": "Arial"
+      },
+      // 3. Blue Rounded Label (Inside Yellow)
+      {
+        "type": "rect",
+        "top": 430,
+        "left": 50,
+        "width": 280,
+        "height": 30,
+        "fill": "#00539F",
+        "rx": 15,
+        "ry": 15
       },
       {
-        type: "text",
-        content: "PERFECTION",
-        top: 240,
-        left: 80,
-        fontSize: 70,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#00d2ff"
+        "type": "text",
+        "content": "Clubcard Price",
+        "top": 435,
+        "left": 125,
+        "fontSize": 18,
+        "fontWeight": "bold",
+        "fill": "white",
+        "fontFamily": "Arial"
+      },
+
+      // --- LEGAL PILL (Flattened) ---
+      // Below stack. Stack bottom: 345 + 120 = 465.
+      // Top = 465 + 24px = 489
+      {
+        "type": "rect",
+        "top": 489,
+        "left": 30,
+        "width": 340,
+        "height": 40,
+        "fill": "#00539F",
+        "rx": 20,
+        "ry": 20
       },
       {
-        type: "rect",
-        top: 330,
-        left: 80,
-        width: 150,
-        height: 4,
-        fill: "#ffffff"
+        "type": "text",
+        "content": "Clubcard/app required. Ends: 24/08",
+        "top": 497,
+        "left": 55,
+        "fontSize": 16,
+        "fill": "white",
+        "fontFamily": "Arial"
       },
+
+      // PRODUCT
       {
-        type: "text",
-        content: "40HR BATTERY LIFE",
-        top: 360,
-        left: 80,
-        fontSize: 26,
-        fontFamily: "Roboto",
-        color: "#cccccc",
-        charSpacing: 50
+        "type": "image",
+        "url": "https://via.placeholder.com/600x600?text=Product",
+        "top": 314,
+        "left": 900,
+        "originX": "center",
+        "originY": "center",
+        "scaleX": 0.9,
+        "scaleY": 0.9
       },
+      // DRINKAWARE
       {
-        type: "rect",
-        top: 460,
-        left: 80,
-        width: 240,
-        height: 60,
-        fill: "transparent",
-        stroke: "#00d2ff",
-        strokeWidth: 2
-      },
-      {
-        type: "text",
-        content: "SHOP AETHER",
-        top: 474,
-        left: 200,
-        originX: "center",
-        fontSize: 24,
-        fontFamily: "Oswald",
-        fontWeight: "bold",
-        color: "#ffffff"
-      },
-      {
-        type: "image",
-        url: "https://placehold.co/600x600/png",
-        top: 314,
-        left: 900,
-        originX: "center",
-        originY: "center",
-        width: 500,
-        angle: -15,
-        shadow: { color: "rgba(0, 210, 255, 0.3)", blur: 50 }
+        "type": "image",
+        "url": "https://res.cloudinary.com/video-app-/image/upload/v1764867609/drinkaware_logo_rgb_znlbh0.png",
+        "top": 550,
+        "left": 1020,
+        "width": 150
       }
     ]
   }
 };
-
 // --- TOOLBAR COMPONENT ---
 export const Toolbar = () => {
   const { canvas, width, height, aiDesign, setAiDesign } = useEditorStore();
@@ -412,6 +549,13 @@ export const Toolbar = () => {
           originY: item.originY as any || 'top',
           selectable: item.selectable !== undefined ? item.selectable : true
         });
+        
+        // Add shadow for rects
+        if (item.shadow) {
+          // @ts-ignore
+          rect.set('shadow', new fabric.Shadow({ ...item.shadow }));
+        }
+        
         canvas.add(rect);
       }
 
@@ -431,13 +575,13 @@ export const Toolbar = () => {
         });
         
         if (item.shadow) {
-            // @ts-ignore
-            circle.set('shadow', new fabric.Shadow({ ...item.shadow }));
+          // @ts-ignore
+          circle.set('shadow', new fabric.Shadow({ ...item.shadow }));
         }
         canvas.add(circle);
       }
       
-      // TEXT
+      // TEXT ✅ FIXED - Now uses item.fill || item.color
       if (item.type === 'text' && item.content) {
         let baseSize = Math.min(item.fontSize || 40, 80); 
         const textObj = new fabric.IText(item.content, {
@@ -446,7 +590,8 @@ export const Toolbar = () => {
           fontSize: baseSize,
           fontFamily: item.fontFamily || 'Arial',
           fontWeight: item.fontWeight || 'normal',
-          fill: item.color || '#000',
+          fill: item.fill || item.color || '#333333', // ✅ FIXED: Prioritizes 'fill' from mock data
+          textAlign: item.textAlign || 'left',
           originX: item.originX as any || 'left',
           originY: item.originY as any || 'top',
           skewX: item.skewX,
@@ -465,55 +610,51 @@ export const Toolbar = () => {
       }
 
       // IMAGE (Using correct v5 syntax)
-
       if (item.type === 'image' && item.url) {
         return new Promise<void>((resolve) => {
-           fabric.Image.fromURL(item.url!, (img) => {
-              img.set({
-                top: item.top,
-                left: item.left,
-                originX: item.originX as any || 'left',
-                originY: item.originY as any || 'top',
-                angle: item.angle || 0,
-                selectable: item.selectable !== undefined ? item.selectable : true
-              });
-              
-              if (item.width) img.scaleToWidth(item.width);
-              
-              // --- SHADOW FIX ---
-              if (item.shadow) {
-                // @ts-ignore
-                img.set('shadow', new fabric.Shadow({ ...item.shadow }));
-              }
-
-              // --- FILTERS FIX (New Code) ---
-              // Check if the AI provided filters (custom property we will add to types)
+          fabric.Image.fromURL(item.url!, (img) => {
+            img.set({
+              top: item.top,
+              left: item.left,
+              originX: item.originX as any || 'left',
+              originY: item.originY as any || 'top',
+              angle: item.angle || 0,
+              selectable: item.selectable !== undefined ? item.selectable : true
+            });
+            
+            if (item.width) img.scaleToWidth(item.width);
+            
+            // --- SHADOW FIX ---
+            if (item.shadow) {
               // @ts-ignore
-              if (item.filters && Array.isArray(item.filters)) {
-                  const newFilters: fabric.IBaseFilter[] = [];
-                  
-                  // @ts-ignore
-                  item.elements?.forEach((f: any) => {
-                      if (f.type === 'Blur') newFilters.push(new fabric.Image.filters.Blur({ blur: f.blur }));
-                      if (f.type === 'Brightness') newFilters.push(new fabric.Image.filters.Brightness({ brightness: f.brightness }));
-                      if (f.type === 'Contrast') newFilters.push(new fabric.Image.filters.Contrast({ contrast: f.contrast }));
-                  });
-                  
-                  // Also check our own explicit properties if we add them to the AI schema later
-                  // (e.g., if item has 'blur': 0.5 directly)
-                  // @ts-ignore
-                  if (item.blur) newFilters.push(new fabric.Image.filters.Blur({ blur: item.blur }));
-                  
-                  img.filters = newFilters;
-                  img.applyFilters();
-              }
+              img.set('shadow', new fabric.Shadow({ ...item.shadow }));
+            }
 
-              canvas.add(img);
-              resolve();
-           }, { crossOrigin: 'anonymous' });
+            // --- FILTERS FIX (New Code) ---
+            // @ts-ignore
+            if (item.filters && Array.isArray(item.filters)) {
+                const newFilters: fabric.IBaseFilter[] = [];
+                
+                // @ts-ignore
+                item.filters.forEach((f: any) => {
+                    if (f.type === 'Blur') newFilters.push(new fabric.Image.filters.Blur({ blur: f.blur }));
+                    if (f.type === 'Brightness') newFilters.push(new fabric.Image.filters.Brightness({ brightness: f.brightness }));
+                    if (f.type === 'Contrast') newFilters.push(new fabric.Image.filters.Contrast({ contrast: f.contrast }));
+                });
+                
+                // Also check our own explicit properties
+                // @ts-ignore
+                if (item.blur) newFilters.push(new fabric.Image.filters.Blur({ blur: item.blur }));
+                
+                img.filters = newFilters;
+                img.applyFilters();
+            }
+
+            canvas.add(img);
+            resolve();
+          }, { crossOrigin: 'anonymous' });
         });
       }
-      
     });
 
     await Promise.all(renderPromises);

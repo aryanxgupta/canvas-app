@@ -441,59 +441,54 @@ func (h *APIState) HandleGenerateLayout(w http.ResponseWriter, r *http.Request) 
 		rules.Prompt = kit.RulesText.String
 	}
 
+	systemPrompt := util.LEP_JSON_PROMPT
 	var mandates strings.Builder
 
 	mandates.WriteString(fmt.Sprintf("DESIGN TONE: %s. STYLE: %s.\n", rules.Tone, rules.Style))
+	mandates.WriteString(fmt.Sprintf("BRAND NAME: %s.", kit.Name))
 
-	// HEADLINES (Must use specific text provided)
 	if rules.Compliance.Headline != "" {
 		mandates.WriteString(fmt.Sprintf("MANDATORY HEADLINE: \"%s\"\n", rules.Compliance.Headline))
 	}
 	if rules.Compliance.Subhead != "" {
 		mandates.WriteString(fmt.Sprintf("MANDATORY SUBHEAD: \"%s\"\n", rules.Compliance.Subhead))
 	}
-
-	// ALCOHOL (Hard Fail Rule)
 	if rules.Compliance.IsAlcoholPromotion {
-		mandates.WriteString("MANDATORY: Include 'Drinkaware.co.uk' logo or text in black or white. High contrast required.\n")
+		mandates.WriteString("MANDATORY: Include 'Drinkaware.co.uk' logo.\n")
 	}
 
-	// TESCO TAGS (Footer)
-	if rules.Compliance.TescoFinalTag != "" {
-		mandates.WriteString(fmt.Sprintf("MANDATORY FOOTER TAG: \"%s\" (Place at bottom).\n", rules.Compliance.TescoFinalTag))
-	}
-
-	// VALUE TILES (The complex part)
-	if rules.Compliance.ValueTile != nil {
-		vt := rules.Compliance.ValueTile
-		if vt.Type == "clubcard" {
-			mandates.WriteString(fmt.Sprintf("DRAW A YELLOW CLUBCARD PRICE TILE. Large Price: %s. Small Regular Price: %s. Date: %s.\n", vt.OfferPrice, vt.RegularPrice, vt.EndDate))
-		} else if vt.Type == "white" {
-			mandates.WriteString(fmt.Sprintf("DRAW A WHITE VALUE TILE. Price: %s.\n", vt.WhitePrice))
-		} else if vt.Type == "new" {
-			mandates.WriteString("DRAW A 'NEW' BADGE TILE.\n")
+	if rules.Compliance.CreativeMode != "lep" {
+		if rules.Compliance.TescoFinalTag != "" && rules.Compliance.TescoFinalTag != "Selected stores. While stocks last." {
+			mandates.WriteString(fmt.Sprintf("MANDATORY FOOTER TAG: \"%s\" (Place at bottom use the logo from assets).\n", rules.Compliance.TescoFinalTag))
 		}
-	} else {
-		// Fallback if no tile data but user asked for it
-		mandates.WriteString("No specific pricing tile required.\n")
+
+		if rules.Compliance.ValueTile != nil {
+			vt := rules.Compliance.ValueTile
+			if vt.Type == "clubcard" {
+				mandates.WriteString(fmt.Sprintf("USE THE CLUBCARD PRICE TILE. Large Price: %s. Small Regular Price: %s. Date: %s.\n", vt.OfferPrice, vt.RegularPrice, vt.EndDate))
+			} else if vt.Type == "white" {
+				mandates.WriteString(fmt.Sprintf("USE THE WHITE VALUE TILE. Price: %s.\n", vt.WhitePrice))
+			} else if vt.Type == "new" {
+				mandates.WriteString("USE THE 'NEW' BADGE .\n")
+			}
+		}
+
+		systemPrompt = util.FABRIC_JSON_PROMPT
 	}
 
-	// Construct a forceful prompt for the LLM
 	finalUserPrompt := fmt.Sprintf(`
-	DESIGN CONTEXT: %s
-	BRAND TONE: %s
 	MANDATORY TAGLINE TO INCLUDE (Do not ignore this): "%s"
-	`, rules.Prompt, mandates.String())
+	`, mandates.String())
 
 	json_request := types.JsonRequest{
-		UserPrompt:        finalUserPrompt, // Use the extracted, forceful string
+		UserPrompt:        finalUserPrompt,
 		Colors:            kit.ColorsJson,
 		Logo:              kit.LogoUrl.String,
 		ImageDescriptions: image_descriptions,
 		ImageURLs:         ImageUrlArray,
 	}
 
-	result, err := h.getFabricJSON(r.Context(), json_request)
+	result, err := h.getFabricJSON(r.Context(), json_request, systemPrompt)
 	if err != nil {
 		log.Printf("ERROR: Unable to generate the fabric json")
 		response.Message = "ERROR: Something went wrong"
@@ -570,7 +565,7 @@ func (h *APIState) getImageDescription(ctx context.Context, image_url string) (s
 	return "", fmt.Errorf("ERROR: All retries failed. Last error: %v", final_error)
 }
 
-func (h *APIState) getFabricJSON(ctx context.Context, json_request types.JsonRequest) (string, error) {
+func (h *APIState) getFabricJSON(ctx context.Context, json_request types.JsonRequest, systemPrompt string) (string, error) {
 	const MAX_RETRIES = 3
 	var final_error error
 
@@ -586,7 +581,7 @@ func (h *APIState) getFabricJSON(ctx context.Context, json_request types.JsonReq
 	jsonString := sb.String()
 
 	for i := 0; i < MAX_RETRIES; i++ {
-		prompt := util.FABRIC_JSON_PROMPT
+		prompt := systemPrompt
 
 		parts := []*genai.Part{
 			{Text: prompt + "\n\nContext Data:\n" + jsonString},

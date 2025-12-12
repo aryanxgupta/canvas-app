@@ -80,10 +80,11 @@ type ValueTileInfo struct {
 }
 
 type RulesData struct {
-	Prompt     string         `json:"prompt"`
-	Tone       string         `json:"tone"`
-	Style      string         `json:"style"`
-	Tagline    string         `json:"tagline"`
-	Compliance ComplianceInfo `json:"compliance"`
-	TescoRules string         `json:"tesco_rules"`
+	Prompt         string         `json:"prompt"`
+	Tone           string         `json:"tone"`
+	Style          string         `json:"style"`
+	Tagline        string         `json:"tagline"`
+	Compliance     ComplianceInfo `json:"compliance"`
+	PrimaryColor   string         `json:"primary_color"`
+	SecondaryColor string         `json:"secondary_color"`
 }

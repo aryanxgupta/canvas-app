@@ -3,6 +3,7 @@ import { useBrandKitStore } from "../../../store/useBrandKitStore";
 import { useState } from "react";
 import { useEditorStore, type AIResponse } from "@/store/editorStore";
 import { useLocation } from "wouter";
+import { body } from "motion/react-client";
 
 interface StepFourProps {
   onBack: () => void;
@@ -135,7 +136,6 @@ export default function StepFour({ onBack }: StepFourProps) {
         headline,
         subhead,
         creative_mode: creativeMode, // standard | lep
-        format,
 
         value_tile: {
           type: valueTileType,
@@ -172,8 +172,6 @@ export default function StepFour({ onBack }: StepFourProps) {
         primary_color: colorsJson.primary,
         secondary_color: colorsJson.secondary,
 
-        tesco_rules:
-          "Follow Tesco brand rules: max 3 packshots, mandatory tag, no claims/competitions. Drinkaware on alcohol creatives. Maintain safe zones.",
       };
 
       // create brand kit
@@ -201,7 +199,7 @@ export default function StepFour({ onBack }: StepFourProps) {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-        }
+        }, 
       );
 
       const genJson = await genRes.json();

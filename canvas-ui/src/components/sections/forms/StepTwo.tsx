@@ -1,4 +1,6 @@
+import { Trash2 } from "lucide-react";
 import { useBrandKitStore } from "../../../store/useBrandKitStore";
+import type { number } from "motion";
 
 interface StepTwoProps {
   onNext: () => void;
@@ -8,6 +10,7 @@ interface StepTwoProps {
 export default function StepTwo({ onNext, onBack }: StepTwoProps) {
   const {
     addProductImages,
+    removeProductImage,
     productImages,
     // Original optional fields are still in store, but removed from UI: campaignName, brandTagline
     
@@ -30,7 +33,7 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
     // WHY: Enforce max 3 packshots (Appendix A)
     if (e.target.files) addProductImages(Array.from(e.target.files));
   }
-  
+
   // Logic to enforce Max 3 Packshots
   const canUploadMore = productImages.length < 3;
   const productLimitReached = productImages.length >= 3;
@@ -142,8 +145,9 @@ export default function StepTwo({ onNext, onBack }: StepTwoProps) {
                 {productImages.map((img, i) => (
                   <div
                     key={i}
-                    className="w-28 h-28 rounded-xl bg-[#111] border border-white/10 flex items-center justify-center text-xs text-gray-300 overflow-hidden p-2 text-center"
+                    className="w-28 h-28 rounded-xl bg-[#111] border border-white/10 flex items-center justify-center text-xs text-gray-300 overflow-hidden p-2 text-center relative"
                   >
+                    <Trash2 className="absolute inset-2 size-4 hover:cursor-pointer hover:size-4.5 transition-all duration-100" color="#f56565" onClick={() => removeProductImage(i)}/>
                     {img.name}
                   </div>
                 ))}
