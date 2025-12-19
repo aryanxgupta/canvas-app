@@ -157,9 +157,9 @@ func (h *APIState) HandleUploadLogo(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	resp, err := h.Cld.Upload.Upload(r.Context(), file, uploader.UploadParams{
-		PublicID:          header.Filename,
-		BackgroundRemoval: "cloudinary_ai",
-		Format:            "png",
+		PublicID:       header.Filename,
+		Transformation: "e_background_removal/e_trim",
+		Format:         "png",
 	})
 
 	if err != nil {
@@ -205,9 +205,9 @@ func (h *APIState) HandleUploadProductImage(w http.ResponseWriter, r *http.Reque
 	defer file.Close()
 
 	resp, err := h.Cld.Upload.Upload(r.Context(), file, uploader.UploadParams{
-		PublicID:          header.Filename,
-		BackgroundRemoval: "cloudinary_ai",
-		Format:            "png",
+		PublicID:       header.Filename,
+		Transformation: "e_background_removal/e_trim",
+		Format:         "png",
 	})
 
 	if err != nil {
