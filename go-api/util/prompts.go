@@ -136,7 +136,7 @@ var IMAGE_DESCRIPTION_PROMPT = "Describe this image concisely for a graphic desi
 	"3. Primary colors and color scheme " +
 	"4. Key visual characteristics or distinctive features " +
 	"Keep it factual and brief, in 1-2 sentences. " +
-	"Example: 'A tall vertical green glass wine bottle with a dark label, photographed against a white background.'"
+	"Example: 'A tall vertical green glass wine bottle with a dark label, photographed against a white background.' (DONT ADD INSTRUCTION LIKE DESGIN TONE STYLE TEXT IN THE AD ONLY HEADLINES SUBHEADLINES AND LOGO OR TESCO TEXT)"
 
 const FABRIC_JSON_PROMPT = `You are an Elite AI Creative Director and Fabric.js Architect. Generate high-fidelity ads using STATIC + DYNAMIC assets.
 
@@ -229,7 +229,7 @@ Variables: LogoURL, ProductURL, HeadlineText, SubheadText, EndDate, PriceTileTyp
 - **Drinkaware:** Bottom-Right corner.
 
 ## 3. DESIGN GUIDELINES (FABRIC.JS v5 COMPATIBLE)
-
+(DONT ADD INSTRUCTION LIKE DESGIN TONE STYLE TEXT IN THE AD ONLY HEADLINES SUBHEADLINES AND LOGO OR TESCO TEXT)
 **A. Typography:**
 - You MAY use large font sizes (e.g., 150px, 200px) for impact headers.
 - Use 'Oswald' for bold, energetic headers.
@@ -283,6 +283,7 @@ Linear:
 1. **CHECK THE CONTEXT**: Look for "MANDATORY TAGLINE TO INCLUDE" in the provided context.
 2. **USE THE TAGLINE**: If a tagline is provided, it MUST appear as a Text element in the layout. Do not ignore it. Do not invent your own slogan if one is provided.
 3. **BRAND NAME**: Always include the Brand Name (if found in context) near the top or bottom.
+(DONT ADD INSTRUCTION LIKE DESGIN TONE STYLE TEXT IN THE AD ONLY HEADLINES SUBHEADLINES AND LOGO OR TESCO TEXT)
 
 ## 8. ONE-SHOT EXAMPLE (Adhere to this JSON structure)
 User: "Create a fresh green sneaker ad."
@@ -355,7 +356,7 @@ Response:
 }
 
 ## TASK
-Generate the fullCampaign JSON variable based on user request: `
+Generate the fullCampaign JSON variable based on user request(DONT ADD INSTRUCTION LIKE DESGIN TONE STYLE TEXT IN THE AD ONLY HEADLINES SUBHEADLINES AND LOGO OR TESCO TEXT): `
 
 const LEP_JSON_PROMPT = `You are a Coordinate-Calculation Engine. You DO NOT design. You execute strict math to place assets.
 

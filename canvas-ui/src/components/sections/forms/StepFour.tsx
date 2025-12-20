@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useEditorStore, type AIResponse } from "@/store/editorStore";
 import { useLocation } from "wouter";
 import { body } from "motion/react-client";
+import { validateTescoCopy } from "@/lib/tescoCopyValidator";
+
 
 interface StepFourProps {
   onBack: () => void;
@@ -112,6 +114,14 @@ export default function StepFour({ onBack }: StepFourProps) {
     try {
       setLoading(true);
       setError("");
+      const headlineError = validateTescoCopy(headline);
+    const subheadError = validateTescoCopy(subhead);
+
+    if (headlineError || subheadError) {
+      setError(headlineError || subheadError!);
+      setLoading(false);
+      return;
+    }
 
       // upload logo
       let currentLogoUrl = logoUrl;
@@ -214,6 +224,7 @@ export default function StepFour({ onBack }: StepFourProps) {
       setLoading(false);
     }
   }
+  
 
   // -------------------------------
   //         UI RENDER
