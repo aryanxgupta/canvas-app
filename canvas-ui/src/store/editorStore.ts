@@ -2,6 +2,11 @@ import { create } from 'zustand';
 import { fabric } from 'fabric';
 
 export interface AIElement {
+  opacity: undefined;
+  textAlign: string;
+  scaleX: any;
+  scaleY: any;
+  radius: number;
   type: string;
   top: number;
   left: number;

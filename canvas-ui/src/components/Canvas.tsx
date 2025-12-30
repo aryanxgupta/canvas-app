@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { fabric } from 'fabric';
 import { useEditorStore } from '../store/editorStore'; 
 import Squares from './Squares';
+import { SafeZoneOverlay } from './SafeZoneOverlay';
 
 export const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -85,6 +86,9 @@ export const Canvas = () => {
       <div className="canvas-wrapper">
         <canvas ref={canvasRef} />
       </div>
+
+      {/* Safe Zone Overlay for Social Stories */}
+      <SafeZoneOverlay />
     </div>
   );
 };

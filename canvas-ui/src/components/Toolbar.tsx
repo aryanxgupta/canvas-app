@@ -9,6 +9,7 @@ import {
   Triangle, 
   Sparkles 
 } from 'lucide-react';
+import { ValidateButton } from './ValidateButton';
 
 // --- FULL MOCK DATA ---
 export const fullCampaign: AIResponse = {
@@ -34,7 +35,10 @@ export const fullCampaign: AIResponse = {
         "originX": "center",
         "originY": "center",
         "scaleX": 1.2,
-        "scaleY": 1.2
+        "scaleY": 1.2,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // HEADLINE
       {
@@ -47,7 +51,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 60,
         "fontFamily": "Oswald",
         "fontWeight": "bold",
-        "fill": "#333"
+        "fill": "#333",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // SUBHEADLINE
       {
@@ -59,7 +68,12 @@ export const fullCampaign: AIResponse = {
         "originY": "center",
         "fontSize": 35,
         "fontFamily": "Arial",
-        "fill": "#666"
+        "fill": "#666",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // PRODUCT (Dynamic Scale)
       {
@@ -69,8 +83,11 @@ export const fullCampaign: AIResponse = {
         "left": 540,
         "originX": "center",
         "originY": "center",
-        "scaleX": 0.85, 
-        "scaleY": 0.85 
+        "scaleX": 0.85,
+        "scaleY": 0.85,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       
       // --- CLUBCARD STACK (Flattened) ---
@@ -85,7 +102,12 @@ export const fullCampaign: AIResponse = {
         "stroke": "#cccccc",
         "strokeWidth": 2,
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 2. Regular Price Text
       {
@@ -95,7 +117,12 @@ export const fullCampaign: AIResponse = {
         "left": 450,
         "fontSize": 32,
         "fill": "#333",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 3. Promo Yellow Rect (Starts 5px below Reg)
       // Top = 1300 + 60 + 5 = 1365
@@ -107,7 +134,12 @@ export const fullCampaign: AIResponse = {
         "height": 120,
         "fill": "#FFD700",
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 4. Promo Price Text
       {
@@ -118,7 +150,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 75,
         "fontWeight": "bold",
         "fill": "black",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 5. Blue Clubcard Label (Rounded, Inside Yellow)
       // Placed near bottom of yellow rect
@@ -130,7 +167,12 @@ export const fullCampaign: AIResponse = {
         "height": 30,
         "fill": "#00539F",
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 6. Clubcard Label Text
       {
@@ -141,7 +183,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 18,
         "fontWeight": "bold",
         "fill": "white",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
 
       // --- LEGAL PILL (Separate - Flattened) ---
@@ -155,7 +202,12 @@ export const fullCampaign: AIResponse = {
         "height": 40,
         "fill": "#00539F",
         "rx": 20,
-        "ry": 20
+        "ry": 20,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -164,7 +216,12 @@ export const fullCampaign: AIResponse = {
         "left": 395,
         "fontSize": 16,
         "fill": "white",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
 
       // DRINKAWARE (Bottom Right - Above 250px safe zone)
@@ -173,7 +230,12 @@ export const fullCampaign: AIResponse = {
         "url": "https://res.cloudinary.com/video-app-/image/upload/v1764867609/drinkaware_logo_rgb_znlbh0.png",
         "top": 1550,
         "left": 850,
-        "width": 150
+        "width": 150,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       }
     ]
   },
@@ -198,7 +260,12 @@ export const fullCampaign: AIResponse = {
         "left": 40,
         "width": 150,
         "originX": "left",
-        "originY": "top"
+        "originY": "top",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // EXCLUSIVE TAG
       {
@@ -206,7 +273,12 @@ export const fullCampaign: AIResponse = {
         "url": "https://res.cloudinary.com/video-app-/image/upload/v1764857735/exclusive-tag_hri0yi.png",
         "top": 40,
         "left": 880,
-        "width": 160
+        "width": 160,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // HEADLINE
       {
@@ -219,7 +291,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 70,
         "fontFamily": "Oswald",
         "fontWeight": "bold",
-        "fill": "#333"
+        "fill": "#333",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // SUBHEADLINE
       {
@@ -231,7 +308,12 @@ export const fullCampaign: AIResponse = {
         "originY": "center",
         "fontSize": 35,
         "fontFamily": "Arial",
-        "fill": "#666"
+        "fill": "#666",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // PRODUCT
       {
@@ -242,7 +324,10 @@ export const fullCampaign: AIResponse = {
         "originX": "center",
         "originY": "center",
         "scaleX": 0.8,
-        "scaleY": 0.8
+        "scaleY": 0.8,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
 
       // --- CLUBCARD STACK (Flattened) ---
@@ -258,7 +343,12 @@ export const fullCampaign: AIResponse = {
         "stroke": "#cccccc",
         "strokeWidth": 2,
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -267,7 +357,12 @@ export const fullCampaign: AIResponse = {
         "left": 790,
         "fontSize": 32,
         "fill": "#333",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 2. Promo Price (Top + 60 + 5px Gap = 845)
       {
@@ -278,7 +373,12 @@ export const fullCampaign: AIResponse = {
         "height": 120,
         "fill": "#FFD700",
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -288,7 +388,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 75,
         "fontWeight": "bold",
         "fill": "black",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 3. Blue Rounded Label (Inside Yellow)
       {
@@ -299,7 +404,12 @@ export const fullCampaign: AIResponse = {
         "height": 30,
         "fill": "#00539F",
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -309,7 +419,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 18,
         "fontWeight": "bold",
         "fill": "white",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
 
       // --- LEGAL PILL (Flattened) ---
@@ -322,7 +437,12 @@ export const fullCampaign: AIResponse = {
         "height": 40,
         "fill": "#00539F",
         "rx": 20,
-        "ry": 20
+        "ry": 20,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -331,7 +451,12 @@ export const fullCampaign: AIResponse = {
         "left": 395,
         "fontSize": 16,
         "fill": "white",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
 
       // DRINKAWARE
@@ -340,7 +465,12 @@ export const fullCampaign: AIResponse = {
         "url": "https://res.cloudinary.com/video-app-/image/upload/v1764867609/drinkaware_logo_rgb_znlbh0.png",
         "top": 980,
         "left": 40,
-        "width": 150
+        "width": 150,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       }
     ]
   },
@@ -363,7 +493,12 @@ export const fullCampaign: AIResponse = {
         "url": "https://via.placeholder.com/150x80?text=LOGO",
         "top": 30,
         "left": 30,
-        "width": 120
+        "width": 120,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // HEADLINE
       {
@@ -374,7 +509,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 50,
         "fontFamily": "Oswald",
         "fontWeight": "bold",
-        "fill": "#333"
+        "fill": "#333",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // SUBHEADLINE
       {
@@ -384,7 +524,12 @@ export const fullCampaign: AIResponse = {
         "left": 30,
         "fontSize": 30,
         "fontFamily": "Arial",
-        "fill": "#666"
+        "fill": "#666",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
 
       // --- CLUBCARD STACK (Flattened) ---
@@ -400,7 +545,12 @@ export const fullCampaign: AIResponse = {
         "stroke": "#cccccc",
         "strokeWidth": 2,
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -409,7 +559,12 @@ export const fullCampaign: AIResponse = {
         "left": 100,
         "fontSize": 32,
         "fill": "#333",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 2. Promo Price (Top + 60 + 5px Gap = 345)
       {
@@ -420,7 +575,12 @@ export const fullCampaign: AIResponse = {
         "height": 120,
         "fill": "#FFD700",
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -430,7 +590,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 75,
         "fontWeight": "bold",
         "fill": "black",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // 3. Blue Rounded Label (Inside Yellow)
       {
@@ -441,7 +606,12 @@ export const fullCampaign: AIResponse = {
         "height": 30,
         "fill": "#00539F",
         "rx": 15,
-        "ry": 15
+        "ry": 15,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -451,7 +621,12 @@ export const fullCampaign: AIResponse = {
         "fontSize": 18,
         "fontWeight": "bold",
         "fill": "white",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
 
       // --- LEGAL PILL (Flattened) ---
@@ -465,7 +640,12 @@ export const fullCampaign: AIResponse = {
         "height": 40,
         "fill": "#00539F",
         "rx": 20,
-        "ry": 20
+        "ry": 20,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       {
         "type": "text",
@@ -474,7 +654,12 @@ export const fullCampaign: AIResponse = {
         "left": 55,
         "fontSize": 16,
         "fill": "white",
-        "fontFamily": "Arial"
+        "fontFamily": "Arial",
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
 
       // PRODUCT
@@ -486,7 +671,10 @@ export const fullCampaign: AIResponse = {
         "originX": "center",
         "originY": "center",
         "scaleX": 0.9,
-        "scaleY": 0.9
+        "scaleY": 0.9,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       },
       // DRINKAWARE
       {
@@ -494,7 +682,12 @@ export const fullCampaign: AIResponse = {
         "url": "https://res.cloudinary.com/video-app-/image/upload/v1764867609/drinkaware_logo_rgb_znlbh0.png",
         "top": 550,
         "left": 1020,
-        "width": 150
+        "width": 150,
+        scaleX: undefined,
+        scaleY: undefined,
+        opacity: undefined,
+        textAlign: '',
+        radius: 0
       }
     ]
   }
@@ -761,15 +954,22 @@ export const Toolbar = () => {
         <Triangle size={24} />
       </button>
 
-      <div className="mt-auto w-full">
-        <button
-          onClick={downloadCanvas}
-          className='w-full aspect-square bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl transition-all flex items-center justify-center shadow-lg shadow-emerald-500/20'
-          title="Download PNG"
-        >
-          <Download size={24} />
-        </button>
-      </div>
+      <div className="mt-auto w-full flex flex-col gap-3">
+
+  {/* ✅ VALIDATE BUTTON */}
+  <ValidateButton />
+
+  {/* ⬇️ DOWNLOAD BUTTON */}
+  <button
+    onClick={downloadCanvas}
+    className='w-full aspect-square bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl transition-all flex items-center justify-center shadow-lg shadow-emerald-500/20'
+    title="Download PNG"
+  >
+    <Download size={24} />
+  </button>
+
+</div>
+
     </div>
   );
 };
