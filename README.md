@@ -170,5 +170,3 @@ A short demo video (2–4 minutes) showcasing:
 * **Aanya Singh Dhaka** — Frontend Engineering, ML & User Experience
 
 
-Just say the word 🚀
-```
