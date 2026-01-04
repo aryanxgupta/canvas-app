@@ -1,170 +1,176 @@
-Anuncia AI
+Here you go — **exactly the same content**, converted into a **proper README.md (Markdown) format**, ready to paste directly into your repo.
 
-AI-Powered Retail Media Creative Studio
+```md
+# Anuncia AI  
+## AI-Powered Retail Media Creative Studio
 
-Anuncia AI is a full-stack web application that automates the creation of retailer-compliant, high-quality ad creatives for Retail Media Networks (RMNs).
-It transforms minimal brand inputs (logo + product packshot) into editable, multi-format ad creatives using AI-generated structured layouts, ensuring speed, compliance, and scalability.
+Anuncia AI is a full-stack web application that automates the creation of **retailer-compliant, high-quality ad creatives** for Retail Media Networks (RMNs).  
+It transforms minimal brand inputs (logo + product packshot) into **editable, multi-format ad creatives** using **AI-generated structured layouts**, ensuring speed, compliance, and scalability.
 
-🚀 What the Software Does
+---
 
-Anuncia AI solves a critical Retail Media bottleneck:
-slow, expensive, and error-prone creative production.
+## 🚀 What the Software Does
 
-Key Capabilities
+Anuncia AI solves a critical Retail Media bottleneck:  
+**slow, expensive, and error-prone creative production.**
 
-AI-Generated Structured Layouts
-Uses Gemini GenAI to generate machine-readable JSON layouts (positions, sizes, safe zones, hierarchy) instead of static images.
+### Key Capabilities
 
-Editable Canvas (No Re-generation Needed)
-AI provides structure → users fine-tune on a React + Fabric.js canvas.
+#### AI-Generated Structured Layouts
+Uses **Gemini GenAI** to generate **machine-readable JSON layouts** (positions, sizes, safe zones, hierarchy) instead of static images.
 
-Multi-Format Support
+#### Editable Canvas (No Re-generation Needed)
+AI provides structure → users fine-tune on a **React + Fabric.js canvas**.
+
+#### Multi-Format Support
 Generate creatives for:
+- Instagram / Facebook Stories (1080×1920)
+- Instagram Posts (1080×1080)
+- Facebook Ads (1200×628)
 
-Instagram / Facebook Stories (1080×1920)
-
-Instagram Posts (1080×1080)
-
-Facebook Ads (1200×628)
-
-Platform-Aware Compliance Validation
+#### Platform-Aware Compliance Validation
 Real-time validation for:
+- Safe zones (Stories)
+- Minimum font sizes (accessibility)
+- Canvas size & placement rules  
 
-Safe zones (Stories)
-
-Minimum font sizes (accessibility)
-
-Canvas size & placement rules
 With visual highlighting of violations.
 
-Optimized Media Pipeline
-Cloudinary handles image optimization, background removal, and output constraints.
+#### Optimized Media Pipeline
+**Cloudinary** handles image optimization, background removal, and output constraints.
 
-🧱 Architecture Overview
+---
 
-Frontend
+## 🧱 Architecture Overview
 
-React
+### Frontend
+- React  
+- Fabric.js (custom canvas renderer)  
+- Zustand (state management)  
 
-Fabric.js (custom canvas renderer)
+### Backend
+- Go (Chi router)  
+- PostgreSQL (BrandKit & metadata)  
+- Cloudinary (media pipeline)  
 
-Zustand (state management)
+### AI Layer
+- Gemini GenAI (Structured Output → Layout JSON)
 
-Backend
-
-Go (Chi router)
-
-PostgreSQL (BrandKit & metadata)
-
-Cloudinary (media pipeline)
-
-AI Layer
-
-Gemini GenAI (Structured Output → Layout JSON)
-
-Workflow
+### Workflow
+```
 
 User Assets → Backend (Go)
-           → Gemini (Layout JSON)
-           → Frontend Canvas Renderer
-           → User Edits + Validation
-           → Download / Export
+→ Gemini (Layout JSON)
+→ Frontend Canvas Renderer
+→ User Edits + Validation
+→ Download / Export
 
-🛠 How to Run the Project Locally
-Prerequisites
+````
 
-Go (>= 1.20)
+---
 
-Node.js (>= 18)
+## 🛠 How to Run the Project Locally
 
-npm
+### Prerequisites
+- Go (>= 1.20)
+- Node.js (>= 18)
+- npm
+- Git
 
-Git
+---
 
-🔹 Backend Setup (Go API)
+## 🔹 Backend Setup (Go API)
+
+```bash
 cd go-api
 go run main.go
-
+````
 
 This starts the backend server responsible for:
 
-Asset handling
+* Asset handling
+* AI orchestration
+* Database interactions
 
-AI orchestration
+---
 
-Database interactions
-
-🔹 Frontend Setup (Canvas UI)
+## 🔹 Frontend Setup (Canvas UI)
 
 Open a new terminal:
 
+```bash
 cd canvas-ui
 npm install
 npm run dev
-
+```
 
 This starts the frontend development server with:
 
-Multi-step creative flow
+* Multi-step creative flow
+* Editable canvas
+* Validation & export
 
-Editable canvas
+---
 
-Validation & export
-
-🌐 Accessing the App
+## 🌐 Accessing the App
 
 Once both servers are running:
 
-Frontend will be available at the URL shown by npm run dev (usually http://localhost:5173)
+* Frontend will be available at the URL shown by `npm run dev`
+  (usually `http://localhost:5173`)
+* Backend runs on its configured Go server port
 
-Backend runs on its configured Go server port
+---
 
-📁 Repository Structure (Simplified)
+## 📁 Repository Structure (Simplified)
+
+```
 .
 ├── go-api/          # Go backend (AI orchestration, APIs)
 ├── canvas-ui/       # React frontend (Canvas editor)
 ├── README.md
+```
 
-🎥 Demo
+---
+
+## 🎥 Demo
 
 A short demo video (2–4 minutes) showcasing:
 
-Asset upload
+* Asset upload
+* AI layout generation
+* Canvas editing
+* Validation
+* Export
 
-AI layout generation
+📎 **Demo Video Link:** *(add GitHub-hosted link here)*
 
-Canvas editing
+---
 
-Validation
+## 💡 Why This Is Unique
 
-Export
+* Uses **structured AI layouts**, not pixel generation
+* Enforces **compliance by design**
+* Enables **human-in-the-loop editing without regeneration**
+* Designed specifically for **Retail Media workflows**, not generic design tools
 
-📎 Demo Video Link: (add GitHub-hosted link here)
+---
 
-💡 Why This Is Unique
+## 🧩 Future Improvements
 
-Uses structured AI layouts, not pixel generation
+* AI text safety & forbidden-claim detection
+* Visual contrast & accessibility scoring
+* Collaborative review workspace
+* Performance prediction for creatives
+* Support for DOOH & in-store screens
 
-Enforces compliance by design
+---
 
-Enables human-in-the-loop editing without regeneration
+## 👥 Team
 
-Designed specifically for Retail Media workflows, not generic design
+* **Aryan Gupta** — Backend Engineering & Machine Learning
+* **Aanya Singh Dhaka** — Frontend Engineering, ML & User Experience
 
-🧩 Future Improvements
 
-AI text safety & forbidden-claim detection
-
-Visual contrast & accessibility scoring
-
-Collaborative review workspace
-
-Performance prediction for creatives
-
-Support for DOOH & in-store screens
-
-👥 Team
-
-Aryan Gupta — Backend Engineering & Machine Learning
-
-Aanya Singh Dhaka — Frontend Engineering, ML & User Experience
+Just say the word 🚀
+```
