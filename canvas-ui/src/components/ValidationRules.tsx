@@ -4,8 +4,8 @@ export const SOCIAL_CANVAS = {
 };
 
 export const SAFE_ZONE = {
-  top: 200,
-  bottom: 250,
+  top: 10,
+  bottom: 20,
 };
 
 export const MIN_FONT_SIZE = {
