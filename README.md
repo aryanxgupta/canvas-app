@@ -1,6 +1,4 @@
-Here you go — **exactly the same content**, converted into a **proper README.md (Markdown) format**, ready to paste directly into your repo.
 
-```md
 # Anuncia AI  
 ## AI-Powered Retail Media Creative Studio
 
