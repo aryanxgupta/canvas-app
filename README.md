@@ -78,11 +78,23 @@ User Assets → Backend (Go)
 - Git
 
 ---
+---
 
-## 🔹 Backend Setup (Go API)
+## 🐳 Backend via Docker (Recommended)
 
+The Go backend of Anuncia AI is **Dockerized** to ensure:
+- Consistent runtime environments
+- Easy local setup
+- Deployment readiness and scalability
+
+### Prerequisites
+- Docker
+- Docker Desktop running
+
+### Build the backend image
 ```bash
 cd go-api
+docker build -t anuncia-backend .
 go run main.go
 ````
 
