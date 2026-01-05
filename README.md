@@ -12,6 +12,8 @@ It transforms minimal brand inputs (logo + product packshot) into **editable, mu
 Anuncia AI solves a critical Retail Media bottleneck:  
 **slow, expensive, and error-prone creative production.**
 
+DEMO VIDEO: https://drive.google.com/file/d/18MvW4lm1OAYzx4uY9rL9Ix0midrwHksY/view?usp=sharing
+
 ### Key Capabilities
 
 #### AI-Generated Structured Layouts
