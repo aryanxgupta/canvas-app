@@ -1,5 +1,5 @@
 
-# Anuncia AI  
+# Anunciante AI  
 ## AI-Powered Retail Media Creative Studio
 
 Anuncia AI is a full-stack web application that automates the creation of **retailer-compliant, high-quality ad creatives** for Retail Media Networks (RMNs).  
